@@ -10,6 +10,8 @@ use App\Repositories\Eloquent\Enterprise\EntrepriseRepository;
 use App\Repositories\Eloquent\User\UserRepositoryInterface;
 use App\Repositories\Eloquent\User\UserRepository;
 use App\Repositories\Eloquent\Auth\AuthRepositoryInterface;
+use App\Repositories\Eloquent\Sector\SectorRepositoryInterface;
+use App\Repositories\Eloquent\Sector\SectorRepository;
 use App\Repositories\Eloquent\Auth\AuthRepository;
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +35,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AuthRepositoryInterface::class,
             AuthRepository::class
+        );
+        $this->app->bind(
+            SectorRepositoryInterface::class,
+            SectorRepository::class
         );
     }
 

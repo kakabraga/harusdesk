@@ -11,4 +11,5 @@ Route::prefix('plans')
 
         Route::post('/', [PlanController::class, 'store']);
         Route::delete('/{id}', [PlanController::class, 'destroy']);
+
     });
