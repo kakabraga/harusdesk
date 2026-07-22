@@ -5,6 +5,7 @@ namespace App\Repositories\Eloquent\Sector;
 use App\Repositories\Eloquent\Sector\SectorRepositoryInterface;
 use App\Models\Sector;
 use App\DTOs\Sector\CreateSectorDTO;
+use Illuminate\Database\Eloquent\Collection;
 class SectorRepository implements SectorRepositoryInterface
 {
 
@@ -15,5 +16,15 @@ class SectorRepository implements SectorRepositoryInterface
             'enterprise_id' => $data->enterpriseId,
             'name' => $data->name
         ]);
+    }
+
+    public function delete(Sector $sector): void
+    {
+        $sector->delete();
+    }
+
+    public function list(): Collection
+    {
+        return Sector::all();
     }
 }

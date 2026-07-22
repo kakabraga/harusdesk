@@ -5,24 +5,28 @@ namespace App\Http\Controllers\Sector;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\Sector\StoreSectorRequest;
-use App\Actions\Sector\CreateStoreAction;
+use App\Actions\Sector\CreateSectorAction;
+use App\Actions\Sector\DeleteSectorAction;
+use App\Actions\Sector\ListSectorAction;
 use App\Helpers\ApiResponse;
 use App\Http\Resources\Sector\CreateSectorResource;
-
+use App\Http\Resources\Sector\SectorResource;
+use App\Models\Sector;
 class SectorController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(ListSectorAction $action)
     {
-        //
+        return ApiResponse::success(SectorResource::collection($action->execute()), 'List');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreSectorRequest $request, CreateStoreAction $action)
+
+    public function store(StoreSectorRequest $request, CreateSectorAction $action)
     {
         return ApiResponse::success(new CreateSectorResource($action->execute($request->toDTO())));
     }
@@ -30,9 +34,9 @@ class SectorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Sector $sector)
     {
-        //
+        return new SectorResource($sector);
     }
 
     /**
@@ -46,8 +50,12 @@ class SectorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Sector $sector, DeleteSectorAction $action)
     {
-        //
+        $this->authorize('delete', $sector);
+
+        $action->execute($sector);
+
+        return response()->noContent();
     }
 }
