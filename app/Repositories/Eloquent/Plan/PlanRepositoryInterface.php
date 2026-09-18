@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\Plan;
+namespace App\Repositories\Eloquent\Plan;
 
 use App\DTOs\Plan\PlanCreateDTO;
 use App\Models\Plan;

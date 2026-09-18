@@ -27,11 +27,11 @@ class UpdateSectorRequest extends FormRequest
         ];
     }
 
-    // public function toDTO(): UpdateSectorDTO
-    // {
-    //     return new UpdateSectorDTO(
-    //         name: $this->name,
-    //         active: $this->active,
-    //     );
-    // }
+    public function toDTO(): UpdateSectorDTO
+    {
+        return new UpdateSectorDTO(
+            name: $this->name,
+            active: $this->active,
+        );
+    }
 }

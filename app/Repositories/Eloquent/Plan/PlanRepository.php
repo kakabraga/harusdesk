@@ -4,7 +4,7 @@ namespace App\Repositories\Eloquent\Plan;
 
 use App\DTOs\Plan\PlanCreateDTO;
 use App\Models\Plan;
-use App\Repositories\Plan\PlanRepositoryInterface;
+use App\Repositories\Eloquent\Plan\PlanRepositoryInterface;
 class PlanRepository implements PlanRepositoryInterface
 {
 

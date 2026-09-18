@@ -5,7 +5,7 @@ namespace App\Actions\Sector;
 use App\Repositories\Eloquent\Sector\SectorRepositoryInterface;
 use App\DTOs\Sector\CreateSectorDTO;
 use App\Models\Sector;
-class CreateStoreAction
+class CreateSectorAction
 {
 
     public function __construct(

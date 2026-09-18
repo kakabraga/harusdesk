@@ -1,18 +1,21 @@
-<?php 
+<?php
 
 namespace App\Actions\Plan;
 
 use App\Repositories\Eloquent\Plan\PlanRepositoryInterface;
 use App\Models\Plan;
-class DestroyPlanAction {
+class DestroyPlanAction
+{
 
     public function __construct(
-        private PlanRepositoryInterface $repository 
-    ) {}
+        private PlanRepositoryInterface $repository
+    ) {
+    }
 
-    public function execute(Plan $plan) : void {
+    public function execute(Plan $plan): void
+    {
 
-        $this->repository->destroy($plan);
-        
+        $this->repository->delete($plan);
+
     }
 }

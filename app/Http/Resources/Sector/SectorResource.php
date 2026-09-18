@@ -10,6 +10,7 @@ class SectorResource extends JsonResource
     public function toArray(Request $request)
     {
         return [
+            'id' => $this->id,
             'enterprise_id' => $this->enterprise_id,
             'name' => $this->name,
             'active' => $this->active

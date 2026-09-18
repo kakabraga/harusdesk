@@ -13,6 +13,9 @@ use App\Repositories\Eloquent\Auth\AuthRepositoryInterface;
 use App\Repositories\Eloquent\Sector\SectorRepositoryInterface;
 use App\Repositories\Eloquent\Sector\SectorRepository;
 use App\Repositories\Eloquent\Auth\AuthRepository;
+use App\Models\Sector;
+use App\Policies\Sector\SectorPolicy;
+use Illuminate\Support\Facades\Gate;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -20,25 +23,40 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+
         // $this->app->bind(
         //     PlanRepositoryInterface::class,
         //     PlanRepository::class
         // );
+
         $this->app->bind(
             EnterpriseRepositoryInterface::class,
             EntrepriseRepository::class
         );
+
         $this->app->bind(
             UserRepositoryInterface::class,
             UserRepository::class
         );
+
+        $this->app->bind(
+            UserRepositoryInterface::class,
+            UserRepository::class
+        );
+
         $this->app->bind(
             AuthRepositoryInterface::class,
             AuthRepository::class
         );
+
         $this->app->bind(
             SectorRepositoryInterface::class,
             SectorRepository::class
+        );
+
+        $this->app->bind(
+            PlanRepositoryInterface::class,
+            PlanRepository::class
         );
     }
 
@@ -47,6 +65,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::policy(Sector::class, SectorPolicy::class);
     }
 }

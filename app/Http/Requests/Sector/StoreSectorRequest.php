@@ -17,6 +17,10 @@ class StoreSectorRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'active' => ['boolean'],
+            'enterprise_id' => [
+                auth()->user()->isSuperAdmin() ? 'required' : 'prohibited',
+                'exists:enterprises,id'
+            ],
         ];
     }
 
@@ -32,7 +36,9 @@ class StoreSectorRequest extends FormRequest
     {
         return new CreateSectorDTO(
             name: $this->name,
-            enterpriseId: auth()->user()->enterprise_id,
+            enterpriseId: auth()->user()->isSuperAdmin()
+            ? $this->enterprise_id :
+            auth()->user()->enterprise_id,
         );
     }
 }
