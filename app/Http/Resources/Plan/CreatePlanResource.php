@@ -7,8 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class CreatePlanResource extends JsonResource
 {
-
-
     public function toArray(Request $request)
     {
         return [

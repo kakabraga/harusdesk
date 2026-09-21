@@ -2,13 +2,12 @@
 
 namespace App\Http\Resources\Enterprise;
 
+use App\Http\Resources\Auth\UserAdminResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Auth\UserAdminResource;
-use App\Http\Resources\Enterprise\EnterpriseResource;
+
 class RegisterEnterpriseResource extends JsonResource
 {
-
     public function toArray(Request $request)
     {
         return [

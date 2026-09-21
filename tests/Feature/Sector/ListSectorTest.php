@@ -9,8 +9,8 @@ use Tests\Traits\InteractsWithTestData;
 
 class ListSectorTest extends TestCase
 {
-    use RefreshDatabase;
     use InteractsWithTestData;
+    use RefreshDatabase;
 
     public function test_unauthenticated_user_cannot_list_sectors(): void
     {

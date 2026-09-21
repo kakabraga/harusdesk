@@ -4,10 +4,9 @@ namespace App\Repositories\Eloquent\Plan;
 
 use App\DTOs\Plan\PlanCreateDTO;
 use App\Models\Plan;
-use App\Repositories\Eloquent\Plan\PlanRepositoryInterface;
+
 class PlanRepository implements PlanRepositoryInterface
 {
-
     public function create(PlanCreateDTO $dto): Plan
     {
 

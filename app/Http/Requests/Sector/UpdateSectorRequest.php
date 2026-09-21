@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Sector;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\DTOs\Sector\UpdateSectorDTO;
+use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSectorRequest extends FormRequest
 {
@@ -17,6 +17,7 @@ class UpdateSectorRequest extends FormRequest
         return [
             'name' => ['sometimes', 'string', 'max:255'],
             'active' => ['sometimes', 'boolean'],
+            'accepts_tickets' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -24,14 +25,17 @@ class UpdateSectorRequest extends FormRequest
     {
         return [
             'name.max' => 'Sector name must not exceed 255 characters.',
+            'active.boolean' => 'Active must be a boolean.',
+            'accepts_tickets.boolean' => 'Accepts tickets must be a boolean.',
         ];
     }
 
     public function toDTO(): UpdateSectorDTO
     {
         return new UpdateSectorDTO(
-            name: $this->name,
-            active: $this->active,
+            name: $this->has('name') ? (string) $this->name : null,
+            active: $this->has('active') ? $this->boolean('active') : null,
+            acceptsTickets: $this->has('accepts_tickets') ? $this->boolean('accepts_tickets') : null
         );
     }
 }

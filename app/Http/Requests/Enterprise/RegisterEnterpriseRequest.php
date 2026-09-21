@@ -2,10 +2,11 @@
 
 namespace App\Http\Requests\Enterprise;
 
-use Illuminate\Foundation\Http\FormRequest;
-use App\DTOs\Enterprise\RegisterEnterpriseDTO;
 use App\DTOs\Enterprise\EnterpriseDTO;
+use App\DTOs\Enterprise\RegisterEnterpriseDTO;
 use App\DTOs\User\UserDTO;
+use Illuminate\Foundation\Http\FormRequest;
+
 class RegisterEnterpriseRequest extends FormRequest
 {
     public function authorize(): bool
@@ -59,8 +60,6 @@ class RegisterEnterpriseRequest extends FormRequest
             'userAdmin.password.confirmed' => 'Password confirmation does not match.',
         ];
     }
-
-
 
     public function toDTO(): RegisterEnterpriseDTO
     {

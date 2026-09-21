@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Plan;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\DTOs\Plan\PlanCreateDTO;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StorePlanRequest extends FormRequest
 {

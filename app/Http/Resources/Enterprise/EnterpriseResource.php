@@ -7,8 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class EnterpriseResource extends JsonResource
 {
-
-
     public function toArray(Request $request)
     {
         return [
@@ -21,4 +19,3 @@ class EnterpriseResource extends JsonResource
         ];
     }
 }
-

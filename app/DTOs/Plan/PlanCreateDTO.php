@@ -4,7 +4,6 @@ namespace App\DTOs\Plan;
 
 class PlanCreateDTO
 {
-
     public function __construct(
         public readonly string $name,
         public readonly int $maxUsers,
@@ -12,8 +11,6 @@ class PlanCreateDTO
         public readonly int $storageMb,
         public readonly float $price,
         public readonly bool $active = true,
-    ) {
-    }
-
+    ) {}
 
 }

@@ -9,8 +9,8 @@ use Tests\Traits\InteractsWithTestData;
 
 class CreateSectorTest extends TestCase
 {
-    use RefreshDatabase;
     use InteractsWithTestData;
+    use RefreshDatabase;
 
     public function test_unauthenticated_user_cannot_create_sector(): void
     {
@@ -31,6 +31,7 @@ class CreateSectorTest extends TestCase
         $payload = [
             'name' => 'Recursos Humanos',
             'active' => true,
+            'accepts_tickets' => true,
         ];
 
         $response = $this->postJson('/api/sectors', $payload);
@@ -44,6 +45,7 @@ class CreateSectorTest extends TestCase
             'name' => 'Recursos Humanos',
             'enterprise_id' => $enterprise->id,
             'active' => true,
+            'accepts_tickets' => true,
         ]);
     }
 
@@ -58,6 +60,7 @@ class CreateSectorTest extends TestCase
             'name' => 'Setor via SuperAdmin',
             'enterprise_id' => $enterprise->id,
             'active' => true,
+            'accepts_tickets' => true,
         ];
 
         $response = $this->postJson('/api/sectors', $payload);
@@ -70,6 +73,7 @@ class CreateSectorTest extends TestCase
         $this->assertDatabaseHas('sectors', [
             'name' => 'Setor via SuperAdmin',
             'enterprise_id' => $enterprise->id,
+            'accepts_tickets' => true,
         ]);
     }
 
@@ -100,6 +104,7 @@ class CreateSectorTest extends TestCase
         $payload = [
             'name' => 'Setor Injetado',
             'enterprise_id' => $otherEnterprise->id,
+            'accepts_tickets' => true,
         ];
 
         $response = $this->postJson('/api/sectors', $payload);
@@ -169,6 +174,31 @@ class CreateSectorTest extends TestCase
             ->assertJsonValidationErrors(['name']);
     }
 
+    public function test_enterprise_admin_creates_sector_with_default_accepts_tickets_as_false(): void
+    {
+        $enterprise = $this->createEnterprise();
+        $admin = $this->createUser(['role' => 'admin'], $enterprise);
+
+        Sanctum::actingAs($admin);
+
+        $payload = [
+            'name' => 'Setor Sem Campo Accepts Tickets',
+        ];
+
+        $response = $this->postJson('/api/sectors', $payload);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.name', 'Setor Sem Campo Accepts Tickets')
+            ->assertJsonPath('data.accepts_tickets', false);
+
+        $this->assertDatabaseHas('sectors', [
+            'name' => 'Setor Sem Campo Accepts Tickets',
+            'enterprise_id' => $enterprise->id,
+            'accepts_tickets' => false,
+        ]);
+    }
+
     public function test_creation_fails_when_active_is_not_boolean(): void
     {
         $enterprise = $this->createEnterprise();
@@ -183,5 +213,21 @@ class CreateSectorTest extends TestCase
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['active']);
+    }
+
+    public function test_creation_fails_when_accepts_tickets_is_not_boolean(): void
+    {
+        $enterprise = $this->createEnterprise();
+        $admin = $this->createUser(['role' => 'admin'], $enterprise);
+
+        Sanctum::actingAs($admin);
+
+        $response = $this->postJson('/api/sectors', [
+            'name' => 'Setor Teste',
+            'accepts_tickets' => 'not-a-boolean',
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['accepts_tickets']);
     }
 }

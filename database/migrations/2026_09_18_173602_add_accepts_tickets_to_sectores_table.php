@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sector_user', function (Blueprint $table) {
-            $table->foreignId('sector_id')->constrained('sectors');
-            $table->foreignId('user_id')->constrained('users');
-            $table->primary(['sector_id', 'user_id']);
+        Schema::table('sectors', function (Blueprint $table) {
+            $table->boolean('accepts_tickets')->default(false);
         });
     }
 
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sector_user');
+        Schema::table('sectors', function (Blueprint $table) {
+            $table->dropColumn('accepts_tickets');
+        });
     }
 };

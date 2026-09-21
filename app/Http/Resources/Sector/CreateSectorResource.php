@@ -17,7 +17,8 @@ class CreateSectorResource extends JsonResource
         return [
             'name' => $this->name,
             'enterprise_id' => $this->enterprise_id,
-            'active' => $this->active
+            'active' => $this->active,
+            'accepts_tickets' => $this->accepts_tickets,
         ];
     }
 }

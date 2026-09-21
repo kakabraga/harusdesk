@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\User;
 
+use App\DTOs\User\CreateUserDTO;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
-use App\DTOs\User\CreateUserDTO;
+
 class StoreUserRequest extends FormRequest
 {
     public function authorize(): bool

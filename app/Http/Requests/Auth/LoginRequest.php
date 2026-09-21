@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use App\DTOs\Auth\LoginDTO;
+use Illuminate\Foundation\Http\FormRequest;
+
 class LoginRequest extends FormRequest
 {
     /**

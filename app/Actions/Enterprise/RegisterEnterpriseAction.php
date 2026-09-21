@@ -2,21 +2,20 @@
 
 namespace App\Actions\Enterprise;
 
+use App\DTOs\Enterprise\EnterpriseDTO;
 use App\DTOs\Enterprise\RegisterEnterpriseDTO;
+use App\DTOs\User\UserDTO;
 use App\Models\Enterprise;
 use App\Repositories\Eloquent\Enterprise\EnterpriseRepositoryInterface;
 use App\Repositories\Eloquent\User\UserRepositoryInterface;
 use Illuminate\Support\Facades\DB;
-use App\DTOs\Enterprise\EnterpriseDTO;
 
-use App\DTOs\User\UserDTO;
 class RegisterEnterpriseAction
 {
     public function __construct(
         private EnterpriseRepositoryInterface $enterpriseRepository,
         private UserRepositoryInterface $userRepository,
-    ) {
-    }
+    ) {}
 
     public function execute(RegisterEnterpriseDTO $dto): array
     {

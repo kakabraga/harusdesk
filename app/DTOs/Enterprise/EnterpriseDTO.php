@@ -9,6 +9,5 @@ readonly class EnterpriseDTO
         public string $cnpj,
         public string $email,
         public int $planId,
-    ) {
-    }
+    ) {}
 }

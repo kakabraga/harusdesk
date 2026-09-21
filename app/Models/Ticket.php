@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToEnterprise;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\Concerns\BelongsToEnterprise;
 
 class Ticket extends Model
 {
     use BelongsToEnterprise;
+
     protected $fillable = [
         'enterprise_id',
         'sector_id',

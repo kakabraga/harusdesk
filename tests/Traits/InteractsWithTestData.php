@@ -17,7 +17,7 @@ trait InteractsWithTestData
     protected function createPlan(array $attributes = []): Plan
     {
         return Plan::create(array_merge([
-            'name' => 'Plano Padrão ' . Str::random(5),
+            'name' => 'Plano Padrão '.Str::random(5),
             'max_users' => 10,
             'max_tickets_per_month' => 100,
             'storage_mb' => 1024,
@@ -35,9 +35,9 @@ trait InteractsWithTestData
 
         return Enterprise::create(array_merge([
             'plan_id' => $planId,
-            'name' => 'Empresa ' . Str::random(5),
+            'name' => 'Empresa '.Str::random(5),
             'cnpj' => sprintf('%014d', mt_rand(1, 99999999999999)),
-            'email' => 'enterprise_' . Str::random(8) . '@teste.com',
+            'email' => 'enterprise_'.Str::random(8).'@teste.com',
             'active' => true,
         ], $attributes));
     }
@@ -51,8 +51,8 @@ trait InteractsWithTestData
 
         return User::create(array_merge([
             'enterprise_id' => $enterpriseId,
-            'name' => 'Usuário ' . Str::random(5),
-            'email' => 'user_' . Str::random(8) . '@teste.com',
+            'name' => 'Usuário '.Str::random(5),
+            'email' => 'user_'.Str::random(8).'@teste.com',
             'password' => Hash::make('password123'),
             'role' => 'admin',
             'active' => true,
@@ -78,8 +78,9 @@ trait InteractsWithTestData
 
         return Sector::create(array_merge([
             'enterprise_id' => $enterpriseId,
-            'name' => 'Setor ' . Str::random(5),
+            'name' => 'Setor '.Str::random(5),
             'active' => true,
+            'accepts_tickets' => true,
         ], $attributes));
     }
 }

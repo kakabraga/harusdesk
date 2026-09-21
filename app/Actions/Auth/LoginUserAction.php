@@ -3,17 +3,16 @@
 namespace App\Actions\Auth;
 
 use App\DTOs\Auth\LoginDTO;
-use App\Repositories\Eloquent\Auth\AuthRepositoryInterface;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\AuthenticationException;
 use App\Models\User;
+use App\Repositories\Eloquent\Auth\AuthRepositoryInterface;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Support\Facades\Hash;
+
 class LoginUserAction
 {
-
     public function __construct(
         private AuthRepositoryInterface $repository,
-    ) {
-    }
+    ) {}
 
     public function execute(LoginDTO $data): array
     {
@@ -25,7 +24,7 @@ class LoginUserAction
 
         return [
             'user' => $user,
-            'token' => $token
+            'token' => $token,
         ];
 
     }
@@ -33,7 +32,7 @@ class LoginUserAction
     private function validateUserAndPassword(LoginDTO $data, ?User $user): void
     {
 
-        if (!$user || !Hash::check($data->password, $user->password)) {
+        if (! $user || ! Hash::check($data->password, $user->password)) {
             throw new AuthenticationException('Invalid credentials');
         }
 

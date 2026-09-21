@@ -2,16 +2,13 @@
 
 namespace App\Repositories\Eloquent\User;
 
-use App\Repositories\Eloquent\User\UserRepositoryInterface;
-use App\Models\User;
-use App\Models\Enterprise;
-use App\DTOs\User\UserDTO;
 use App\DTOs\User\CreateUserDTO;
-use RuntimeException;
+use App\DTOs\User\UserDTO;
+use App\Models\Enterprise;
+use App\Models\User;
+
 class UserRepository implements UserRepositoryInterface
 {
-
-
     public function createAdmin(UserDTO $dto, Enterprise $enterpise): User
     {
         return User::create([
@@ -22,6 +19,7 @@ class UserRepository implements UserRepositoryInterface
             'role' => 'admin',
         ]);
     }
+
     public function create(CreateUserDTO $dto): User
     {
         return User::create([

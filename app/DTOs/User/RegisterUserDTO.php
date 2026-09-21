@@ -11,7 +11,5 @@ class RegisterUserDTO
         public readonly string $password,
         public readonly string $role,
         public readonly string $remember_token,
-    ) {
-
-    }
+    ) {}
 }

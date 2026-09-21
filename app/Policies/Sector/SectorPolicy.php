@@ -4,8 +4,7 @@ namespace App\Policies\Sector;
 
 use App\Models\Sector;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
-use Illuminate\Support\Facades\Log;
+
 class SectorPolicy
 {
     /**
@@ -47,6 +46,7 @@ class SectorPolicy
     {
         return ($user->enterprise_id === $sector->enterprise_id && $user->isAdmin()) || $user->isSuperAdmin();
     }
+
     /**
      * Determine whether the user can restore the model.
      */

@@ -2,20 +2,21 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use App\Repositories\Eloquent\Plan\PlanRepositoryInterface;
-use App\Repositories\Eloquent\Plan\PlanRepository;
-use App\Repositories\Eloquent\Enterprise\EnterpriseRepositoryInterface;
-use App\Repositories\Eloquent\Enterprise\EntrepriseRepository;
-use App\Repositories\Eloquent\User\UserRepositoryInterface;
-use App\Repositories\Eloquent\User\UserRepository;
-use App\Repositories\Eloquent\Auth\AuthRepositoryInterface;
-use App\Repositories\Eloquent\Sector\SectorRepositoryInterface;
-use App\Repositories\Eloquent\Sector\SectorRepository;
-use App\Repositories\Eloquent\Auth\AuthRepository;
 use App\Models\Sector;
 use App\Policies\Sector\SectorPolicy;
+use App\Repositories\Eloquent\Auth\AuthRepository;
+use App\Repositories\Eloquent\Auth\AuthRepositoryInterface;
+use App\Repositories\Eloquent\Enterprise\EnterpriseRepositoryInterface;
+use App\Repositories\Eloquent\Enterprise\EntrepriseRepository;
+use App\Repositories\Eloquent\Plan\PlanRepository;
+use App\Repositories\Eloquent\Plan\PlanRepositoryInterface;
+use App\Repositories\Eloquent\Sector\SectorRepository;
+use App\Repositories\Eloquent\Sector\SectorRepositoryInterface;
+use App\Repositories\Eloquent\User\UserRepository;
+use App\Repositories\Eloquent\User\UserRepositoryInterface;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ServiceProvider;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**

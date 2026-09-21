@@ -9,7 +9,7 @@ trait BelongsToEnterprise
     protected static function bootBelongsToEnterprise(): void
     {
         static::addGlobalScope('enterprise', function (Builder $query) {
-            if (!auth()->check()) {
+            if (! auth()->check()) {
                 return;
             }
 

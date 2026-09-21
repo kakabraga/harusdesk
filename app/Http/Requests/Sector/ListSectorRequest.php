@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\Sector;
 
+use App\DTOs\Sector\SectorFilterDTO;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\DTOs\Sector\SectorFilterDTO;
+
 class ListSectorRequest extends FormRequest
 {
     /**

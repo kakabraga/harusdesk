@@ -9,8 +9,8 @@ use Tests\Traits\InteractsWithTestData;
 
 class ShowSectorTest extends TestCase
 {
-    use RefreshDatabase;
     use InteractsWithTestData;
+    use RefreshDatabase;
 
     public function test_unauthenticated_user_cannot_view_sector(): void
     {
@@ -36,7 +36,8 @@ class ShowSectorTest extends TestCase
             ->assertJsonPath('data.id', $sector->id)
             ->assertJsonPath('data.name', 'Desenvolvimento')
             ->assertJsonPath('data.enterprise_id', $enterprise->id)
-            ->assertJsonPath('data.active', true);
+            ->assertJsonPath('data.active', true)
+            ->assertJsonPath('data.accepts_tickets', true);
     }
 
     public function test_user_cannot_view_sector_from_another_enterprise(): void

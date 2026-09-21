@@ -2,19 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToEnterprise;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Concerns\BelongsToEnterprise;
 
 class User extends Authenticatable
 {
+    use BelongsToEnterprise;
     use HasApiTokens;
     use SoftDeletes;
-    use BelongsToEnterprise;
 
     protected $fillable = [
         'enterprise_id',
@@ -67,10 +67,11 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        return $this->role === "admin";
+        return $this->role === 'admin';
     }
+
     public function isSuperAdmin()
     {
-        return $this->role === "super_admin";
+        return $this->role === 'super_admin';
     }
 }

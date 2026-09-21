@@ -9,8 +9,8 @@ use Tests\Traits\InteractsWithTestData;
 
 class DeleteSectorTest extends TestCase
 {
-    use RefreshDatabase;
     use InteractsWithTestData;
+    use RefreshDatabase;
 
     public function test_unauthenticated_user_cannot_delete_sector(): void
     {

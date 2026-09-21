@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Sector;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\DTOs\Sector\CreateSectorDTO;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StoreSectorRequest extends FormRequest
 {
@@ -19,8 +19,9 @@ class StoreSectorRequest extends FormRequest
             'active' => ['boolean'],
             'enterprise_id' => [
                 auth()->user()->isSuperAdmin() ? 'required' : 'prohibited',
-                'exists:enterprises,id'
+                'exists:enterprises,id',
             ],
+            'accepts_tickets' => ['boolean'],
         ];
     }
 
@@ -29,16 +30,20 @@ class StoreSectorRequest extends FormRequest
         return [
             'name.required' => 'Sector name is required.',
             'name.max' => 'Sector name must not exceed 255 characters.',
+            'active.boolean' => 'Active must be a boolean.',
+            'accepts_tickets.boolean' => 'Accepts tickets must be a boolean.',
         ];
     }
 
     public function toDTO(): CreateSectorDTO
     {
         return new CreateSectorDTO(
-            name: $this->name,
             enterpriseId: auth()->user()->isSuperAdmin()
-            ? $this->enterprise_id :
-            auth()->user()->enterprise_id,
+                ? (int) $this->enterprise_id
+                : (int) auth()->user()->enterprise_id,
+            name: (string) $this->name,
+            active: $this->has('active') ? $this->boolean('active') : true,
+            acceptsTickets: $this->has('accepts_tickets') ? $this->boolean('accepts_tickets') : false
         );
     }
 }

@@ -13,7 +13,8 @@ class SectorResource extends JsonResource
             'id' => $this->id,
             'enterprise_id' => $this->enterprise_id,
             'name' => $this->name,
-            'active' => $this->active
+            'active' => $this->active,
+            'accepts_tickets' => $this->accepts_tickets,
         ];
 
     }

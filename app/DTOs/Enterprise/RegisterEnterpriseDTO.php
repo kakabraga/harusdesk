@@ -9,6 +9,5 @@ readonly class RegisterEnterpriseDTO
     public function __construct(
         public EnterpriseDTO $enterprise,
         public UserDTO $userAdmin,
-    ) {
-    }
+    ) {}
 }

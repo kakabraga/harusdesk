@@ -9,8 +9,8 @@ use Tests\Traits\InteractsWithTestData;
 
 class UpdateSectorTest extends TestCase
 {
-    use RefreshDatabase;
     use InteractsWithTestData;
+    use RefreshDatabase;
 
     public function test_unauthenticated_user_cannot_update_sector(): void
     {
@@ -30,6 +30,7 @@ class UpdateSectorTest extends TestCase
         $sector = $this->createSector([
             'name' => 'Nome Antigo',
             'active' => true,
+            'accepts_tickets' => false,
         ], $enterprise);
 
         Sanctum::actingAs($admin);
@@ -37,17 +38,20 @@ class UpdateSectorTest extends TestCase
         $response = $this->putJson("/api/sectors/{$sector->id}", [
             'name' => 'Nome Atualizado',
             'active' => false,
+            'accepts_tickets' => true,
         ]);
 
         $response->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.name', 'Nome Atualizado')
-            ->assertJsonPath('data.active', false);
+            ->assertJsonPath('data.active', false)
+            ->assertJsonPath('data.accepts_tickets', true);
 
         $this->assertDatabaseHas('sectors', [
             'id' => $sector->id,
             'name' => 'Nome Atualizado',
             'active' => false,
+            'accepts_tickets' => true,
         ]);
     }
 
@@ -182,6 +186,36 @@ class UpdateSectorTest extends TestCase
             ->assertJsonValidationErrors(['name']);
     }
 
+    public function test_enterprise_admin_can_partially_update_only_accepts_tickets_without_changing_other_fields(): void
+    {
+        $enterprise = $this->createEnterprise();
+        $admin = $this->createUser(['role' => 'admin'], $enterprise);
+        $sector = $this->createSector([
+            'name' => 'Atendimento Geral',
+            'active' => true,
+            'accepts_tickets' => false,
+        ], $enterprise);
+
+        Sanctum::actingAs($admin);
+
+        $response = $this->putJson("/api/sectors/{$sector->id}", [
+            'accepts_tickets' => true,
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.name', 'Atendimento Geral')
+            ->assertJsonPath('data.active', true)
+            ->assertJsonPath('data.accepts_tickets', true);
+
+        $this->assertDatabaseHas('sectors', [
+            'id' => $sector->id,
+            'name' => 'Atendimento Geral',
+            'active' => true,
+            'accepts_tickets' => true,
+        ]);
+    }
+
     public function test_update_fails_when_active_is_not_boolean(): void
     {
         $enterprise = $this->createEnterprise();
@@ -196,5 +230,21 @@ class UpdateSectorTest extends TestCase
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['active']);
+    }
+
+    public function test_update_fails_when_accepts_tickets_is_not_boolean(): void
+    {
+        $enterprise = $this->createEnterprise();
+        $admin = $this->createUser(['role' => 'admin'], $enterprise);
+        $sector = $this->createSector([], $enterprise);
+
+        Sanctum::actingAs($admin);
+
+        $response = $this->putJson("/api/sectors/{$sector->id}", [
+            'accepts_tickets' => 'not-a-bool',
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['accepts_tickets']);
     }
 }
