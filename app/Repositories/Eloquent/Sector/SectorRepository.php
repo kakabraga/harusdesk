@@ -34,4 +34,12 @@ class SectorRepository implements SectorRepositoryInterface
     {
         return Sector::all();
     }
+
+    public function findByIdAndEnterpriseId(int $sectorId, int $enterpriseId): ?Sector
+    {
+        return Sector::withoutGlobalScopes()
+            ->where('id', $sectorId)
+            ->where('enterprise_id', $enterpriseId)
+            ->first();
+    }
 }

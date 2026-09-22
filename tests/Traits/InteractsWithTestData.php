@@ -5,6 +5,7 @@ namespace Tests\Traits;
 use App\Models\Enterprise;
 use App\Models\Plan;
 use App\Models\Sector;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -81,6 +82,28 @@ trait InteractsWithTestData
             'name' => 'Setor '.Str::random(5),
             'active' => true,
             'accepts_tickets' => true,
+        ], $attributes));
+    }
+
+    /**
+     * Create a Ticket fixture.
+     */
+    protected function createTicket(array $attributes = [], ?Enterprise $enterprise = null): Ticket
+    {
+        $enterprise = $enterprise ?? $this->createEnterprise();
+        $sectorId = $attributes['sector_id'] ?? $this->createSector([], $enterprise)->id;
+        $requesterId = $attributes['requester_id'] ?? $this->createUser(['role' => 'requester'], $enterprise)->id;
+
+        return Ticket::create(array_merge([
+            'enterprise_id' => $enterprise->id,
+            'sector_id' => $sectorId,
+            'requester_id' => $requesterId,
+            'attendant_id' => null,
+            'title' => 'Chamado de Teste '.Str::random(5),
+            'description' => 'Descrição do chamado de teste para validações.',
+            'status' => 'open',
+            'priority' => 'low',
+            'has_attachments' => false,
         ], $attributes));
     }
 }

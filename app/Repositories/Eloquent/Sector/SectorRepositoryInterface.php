@@ -15,4 +15,6 @@ interface SectorRepositoryInterface
     public function delete(Sector $sector): void;
 
     public function listAll(): Collection;
+
+    public function findByIdAndEnterpriseId(int $sectorId, int $enterpriseId): ?Sector;
 }
