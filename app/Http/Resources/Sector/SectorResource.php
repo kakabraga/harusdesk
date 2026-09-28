@@ -15,6 +15,9 @@ class SectorResource extends JsonResource
             'name' => $this->name,
             'active' => $this->active,
             'accepts_tickets' => $this->accepts_tickets,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'deleted_at' => $this->deleted_at,
         ];
 
     }

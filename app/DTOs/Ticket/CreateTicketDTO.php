@@ -12,6 +12,7 @@ class CreateTicketDTO
         public readonly string $description,
         public readonly string $priority = 'low',
         public readonly string $status = 'open',
-        public readonly ?int $attendantId = null
+        public readonly ?int $attendantId = null,
+        public readonly ?array $attachments = []
     ) {}
 }

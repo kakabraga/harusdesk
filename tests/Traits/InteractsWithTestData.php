@@ -2,6 +2,7 @@
 
 namespace Tests\Traits;
 
+use App\Models\Attachment;
 use App\Models\Enterprise;
 use App\Models\Plan;
 use App\Models\Sector;
@@ -104,6 +105,23 @@ trait InteractsWithTestData
             'status' => 'open',
             'priority' => 'low',
             'has_attachments' => false,
+        ], $attributes));
+    }
+
+    /**
+     * Create an Attachment fixture.
+     */
+    protected function createAttachment(array $attributes = [], ?Ticket $ticket = null): Attachment
+    {
+        $ticket = $ticket ?? $this->createTicket();
+
+        return Attachment::create(array_merge([
+            'ticket_id' => $ticket->id,
+            'interaction_id' => null,
+            'original_name' => 'anexo_'.Str::random(5).'.pdf',
+            'path' => "attachments/enterprise_{$ticket->enterprise_id}/ticket_{$ticket->id}/".Str::random(10).'.pdf',
+            'mime_type' => 'application/pdf',
+            'size_kb' => 150,
         ], $attributes));
     }
 }

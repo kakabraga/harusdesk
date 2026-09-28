@@ -7,6 +7,7 @@ class ListTicketDTO
     public function __construct(
         public readonly ?string $status = null,
         public readonly ?string $priority = null,
+        public readonly ?string $hasAttachments = null,
         public readonly ?int $sectorId = null,
         public readonly ?int $enterpriseId = null,
         public readonly int $perPage = 15,

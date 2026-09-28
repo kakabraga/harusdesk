@@ -4,7 +4,7 @@
 [![Laravel Framework](https://img.shields.io/badge/Laravel-11-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/)
 [![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![Tests](https://img.shields.io/badge/Tests-78%20Passed%20(100%25)-success?logo=phpunit&logoColor=white)](https://phpunit.de/)
+[![Tests](https://img.shields.io/badge/Tests-121%20Passed%20(100%25)-success?logo=phpunit&logoColor=white)](https://phpunit.de/)
 [![Code Style](https://img.shields.io/badge/Code%20Style-Laravel%20Pint-brightgreen)](https://laravel.com/docs/pint)
 
 O **HarusDesk** é uma API RESTful moderna, robusta e escalável desenvolvida para plataformas SaaS de Helpdesk / Atendimento ao Cliente. 
@@ -16,7 +16,7 @@ O projeto foi arquitetado com foco em **Clean Architecture**, **SOLID**, **Multi
 ## 🏛️ Destaques de Arquitetura & Engenharia
 
 ```
-[ HTTP Request (JSON) ]
+[ HTTP Request (JSON / Multipart) ]
           ↓
 [ Form Request + Custom Rules ] ➔ (Validação, Fail-fast e Tenant Scoping)
           ↓
@@ -35,8 +35,8 @@ O projeto foi arquitetado com foco em **Clean Architecture**, **SOLID**, **Multi
   - Custom Validation Rules e Macros (`Rule::existsForTenant`, `SectorAcceptsTickets`, `ValidAttendant`) para prevenir falhas de referência direta insegura a objetos (*IDOR*).
 - **Autorização Granular (RBAC + Policies):**
   - Perfis de acesso bem definidos: `Super Admin`, `Admin da Empresa`, `Atendente` e `Solicitante (Requester)`.
-  - Policies dedicadas por módulo (`TicketPolicy`, `SectorPolicy`, `UserPolicy`).
-- **Segurança de Dados:** Suporte a **Soft Deletes** para rastreabilidade e integridade histórica de chamados e usuários.
+  - Policies dedicadas por módulo (`TicketPolicy`, `SectorPolicy`, `UserPolicy`, `AttachmentPolicy`).
+- **Segurança de Dados & Arquivos:** Suporte a **Soft Deletes** para rastreabilidade e integridade histórica, com armazenamento seguro e isolado de anexos por tenant.
 - **Suíte de Testes Automatizados:** Cobertura de testes de Feature para cenários felizes (*happy paths*) e fluxos de erro/violações de permissão (*sad paths*).
 
 ---
@@ -128,10 +128,18 @@ Todos os usuários criados pelos seeders possuem a senha padrão: `password`
 
 ### Chamados / Tickets (`/api/tickets`)
 - `GET /api/tickets` — Listagem paginada com filtros (`status`, `priority`, `sector_id`).
-- `POST /api/tickets` — Abertura de novo chamado (com validação de setor ativo e tenant).
+- `POST /api/tickets` — Abertura de novo chamado (com validação de setor ativo, tenant e suporte a múltiplos `attachments[]`).
 - `GET /api/tickets/{id}` — Detalhes do chamado.
 - `PUT/PATCH /api/tickets/{id}` — Atualizações completas ou parciais (atribuição de atendente, transição de status).
 - `DELETE /api/tickets/{id}` — Exclusão lógica (Soft Delete) autorizada.
+
+### Anexos / Attachments (`/api/attachments`)
+- `GET /api/attachments` — Listagem paginada de anexos autorizados (filtro opcional por `ticket_id`).
+- `GET /api/attachments/{id}` — Detalhes e metadados do anexo.
+- `GET /api/attachments/{id}/preview` — Visualização/renderização do arquivo inline.
+- `GET /api/attachments/{id}/download` — Download seguro do arquivo com validação de permissões.
+- `DELETE /api/attachments/{id}` — Exclusão lógica (Soft Delete) do anexo.
+- `DELETE /api/attachments/{id}/force` — Exclusão permanente do registro e arquivo físico no storage (Super Admin).
 
 ### Setores / Sectors (`/api/sectors`)
 - `GET /api/sectors` — Lista setores da empresa.

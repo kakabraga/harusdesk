@@ -20,5 +20,7 @@ interface TicketRepositoryInterface
 
     public function update(Ticket $ticket, UpdateTicketDTO $dto): Ticket;
 
+    public function updateHasAttachments(Ticket $ticket, bool $hasAttachments = true): void;
+
     public function delete(Ticket $ticket): void;
 }

@@ -3,6 +3,8 @@
 namespace Tests\Feature\Ticket;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 use Tests\Traits\InteractsWithTestData;
@@ -223,5 +225,140 @@ class CreateTicketTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['priority']);
+    }
+
+    public function test_user_can_create_ticket_with_multiple_attachments(): void
+    {
+        Storage::fake('local');
+
+        $enterprise = $this->createEnterprise();
+        $user = $this->createUser(['role' => 'requester'], $enterprise);
+        $sector = $this->createSector(['active' => true, 'accepts_tickets' => true], $enterprise);
+
+        Sanctum::actingAs($user);
+
+        $filePdf = UploadedFile::fake()->create('documento.pdf', 250, 'application/pdf');
+        $fileImg = UploadedFile::fake()->create('print_erro.png', 300, 'image/png');
+
+        $payload = [
+            'sector_id' => $sector->id,
+            'title' => 'Chamado com anexos',
+            'description' => 'Segue documentos em anexo para analise.',
+            'priority' => 'high',
+            'attachments' => [$filePdf, $fileImg],
+        ];
+
+        $response = $this->post('/api/tickets', $payload, ['Accept' => 'application/json']);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.title', 'Chamado com anexos')
+            ->assertJsonPath('data.has_attachments', true)
+            ->assertJsonCount(2, 'data.attachments')
+            ->assertJsonPath('data.attachments.0.original_name', 'documento.pdf')
+            ->assertJsonPath('data.attachments.1.original_name', 'print_erro.png');
+
+        $ticketId = $response->json('data.id');
+
+        $this->assertDatabaseHas('tickets', [
+            'id' => $ticketId,
+            'title' => 'Chamado com anexos',
+            'has_attachments' => true,
+        ]);
+
+        $this->assertDatabaseHas('attachments', [
+            'ticket_id' => $ticketId,
+            'original_name' => 'documento.pdf',
+            'mime_type' => 'application/pdf',
+        ]);
+
+        $this->assertDatabaseHas('attachments', [
+            'ticket_id' => $ticketId,
+            'original_name' => 'print_erro.png',
+            'mime_type' => 'image/png',
+        ]);
+
+        $pdfAttachment = $response->json('data.attachments.0');
+        $imgAttachment = $response->json('data.attachments.1');
+
+        Storage::disk('local')->assertExists($pdfAttachment['path']);
+        Storage::disk('local')->assertExists($imgAttachment['path']);
+    }
+
+    public function test_user_can_create_ticket_without_attachments(): void
+    {
+        $enterprise = $this->createEnterprise();
+        $user = $this->createUser(['role' => 'requester'], $enterprise);
+        $sector = $this->createSector(['active' => true, 'accepts_tickets' => true], $enterprise);
+
+        Sanctum::actingAs($user);
+
+        $payload = [
+            'sector_id' => $sector->id,
+            'title' => 'Chamado sem anexos',
+            'description' => 'Descricao sem nenhum anexo.',
+        ];
+
+        $response = $this->postJson('/api/tickets', $payload);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonMissingPath('data.attachments');
+
+        $ticketId = $response->json('data.id');
+
+        $this->assertDatabaseHas('tickets', [
+            'id' => $ticketId,
+            'has_attachments' => false,
+        ]);
+
+        $this->assertDatabaseCount('attachments', 0);
+    }
+
+    public function test_creation_fails_when_attachment_has_invalid_mime_type(): void
+    {
+        $enterprise = $this->createEnterprise();
+        $user = $this->createUser(['role' => 'requester'], $enterprise);
+        $sector = $this->createSector(['active' => true, 'accepts_tickets' => true], $enterprise);
+
+        Sanctum::actingAs($user);
+
+        $invalidFile = UploadedFile::fake()->create('script.sh', 10, 'text/x-shellscript');
+
+        $payload = [
+            'sector_id' => $sector->id,
+            'title' => 'Chamado com arquivo invalido',
+            'description' => 'Tentativa de enviar script.',
+            'attachments' => [$invalidFile],
+        ];
+
+        $response = $this->post('/api/tickets', $payload, ['Accept' => 'application/json']);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['attachments.0']);
+    }
+
+    public function test_creation_fails_when_attachment_exceeds_max_size(): void
+    {
+        $enterprise = $this->createEnterprise();
+        $user = $this->createUser(['role' => 'requester'], $enterprise);
+        $sector = $this->createSector(['active' => true, 'accepts_tickets' => true], $enterprise);
+
+        Sanctum::actingAs($user);
+
+        // 12000 KB > 10240 KB (10MB)
+        $oversizedFile = UploadedFile::fake()->create('grande.pdf', 12000, 'application/pdf');
+
+        $payload = [
+            'sector_id' => $sector->id,
+            'title' => 'Chamado com arquivo muito grande',
+            'description' => 'Tentativa de enviar arquivo maior que 10MB.',
+            'attachments' => [$oversizedFile],
+        ];
+
+        $response = $this->post('/api/tickets', $payload, ['Accept' => 'application/json']);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['attachments.0']);
     }
 }

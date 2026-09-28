@@ -17,7 +17,8 @@ class CreatePlanResource extends JsonResource
             'storage_mb' => $this->storage_mb,
             'price' => $this->price,
             'active' => $this->active,
-            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

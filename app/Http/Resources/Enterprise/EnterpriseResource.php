@@ -15,7 +15,8 @@ class EnterpriseResource extends JsonResource
             'name' => $this->name,
             'cnpj' => $this->cnpj,
             'email' => $this->email,
-            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

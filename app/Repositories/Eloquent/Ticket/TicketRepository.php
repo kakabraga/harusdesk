@@ -23,7 +23,6 @@ class TicketRepository implements TicketRepositoryInterface
             'description' => $dto->description,
             'priority' => $dto->priority,
             'status' => $dto->status,
-            'attendant_id' => $dto->attendantId,
         ]);
     }
 
@@ -74,7 +73,8 @@ class TicketRepository implements TicketRepositoryInterface
     {
         $query->when($dto->status, fn (Builder $q, string $status) => $q->where('status', $status))
             ->when($dto->priority, fn (Builder $q, string $priority) => $q->where('priority', $priority))
-            ->when($dto->sectorId, fn (Builder $q, int $sectorId) => $q->where('sector_id', $sectorId));
+            ->when($dto->sectorId, fn (Builder $q, int $sectorId) => $q->where('sector_id', $sectorId))
+            ->when($dto->hasAttachments, fn (Builder $q, string $hasAttachments) => $q->where('has_attachments', $hasAttachments));
     }
 
     public function update(Ticket $ticket, UpdateTicketDTO $dto): Ticket
@@ -82,6 +82,11 @@ class TicketRepository implements TicketRepositoryInterface
         $ticket->update($dto->toArray());
 
         return $ticket;
+    }
+
+    public function updateHasAttachments(Ticket $ticket, bool $hasAttachments = true): void
+    {
+        $ticket->update(['has_attachments' => $hasAttachments]);
     }
 
     public function delete(Ticket $ticket): void

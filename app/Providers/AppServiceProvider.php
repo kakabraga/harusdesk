@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\Attachment;
 use App\Models\Sector;
 use App\Models\Ticket;
+use App\Policies\Attachment\AttachmentPolicy;
 use App\Policies\Sector\SectorPolicy;
 use App\Policies\Ticket\TicketPolicy;
+use App\Repositories\Eloquent\Attachment\AttachmentRepository;
+use App\Repositories\Eloquent\Attachment\AttachmentRepositoryInterface;
 use App\Repositories\Eloquent\Auth\AuthRepository;
 use App\Repositories\Eloquent\Auth\AuthRepositoryInterface;
 use App\Repositories\Eloquent\Enterprise\EnterpriseRepositoryInterface;
@@ -18,6 +22,7 @@ use App\Repositories\Eloquent\Ticket\TicketRepository;
 use App\Repositories\Eloquent\Ticket\TicketRepositoryInterface;
 use App\Repositories\Eloquent\User\UserRepository;
 use App\Repositories\Eloquent\User\UserRepositoryInterface;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rule;
@@ -69,6 +74,11 @@ class AppServiceProvider extends ServiceProvider
             TicketRepositoryInterface::class,
             TicketRepository::class
         );
+
+        $this->app->bind(
+            AttachmentRepositoryInterface::class,
+            AttachmentRepository::class
+        );
     }
 
     /**
@@ -76,8 +86,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Carbon::serializeUsing(fn ($date) => $date->format('Y-m-d H:i:s'));
+
         Gate::policy(Sector::class, SectorPolicy::class);
         Gate::policy(Ticket::class, TicketPolicy::class);
+        Gate::policy(Attachment::class, AttachmentPolicy::class);
 
         Rule::macro('existsForTenant', function (string $table, string $column = 'id', ?int $enterpriseId = null) {
             $resolvedEnterpriseId = $enterpriseId ?? auth()->user()?->enterprise_id;

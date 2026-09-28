@@ -40,6 +40,7 @@ class TicketController extends Controller
     public function show(Ticket $ticket)
     {
         $this->authorize('view', $ticket);
+        $ticket->load('attachments');
 
         return ApiResponse::success(new TicketResource($ticket));
     }

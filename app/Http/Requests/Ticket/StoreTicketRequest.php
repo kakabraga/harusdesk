@@ -26,6 +26,8 @@ class StoreTicketRequest extends FormRequest
                 auth()->user()?->isSuperAdmin() ? 'required' : 'prohibited',
                 'exists:enterprises,id',
             ],
+            'attachments' => ['sometimes', 'array'],
+            'attachments.*' => ['file', 'mimes:pdf,jpeg,png,jpg,docx,txt', 'max:10240'], // 10MB max por arquivo
         ];
     }
 
@@ -38,6 +40,7 @@ class StoreTicketRequest extends FormRequest
             'title.max' => 'The ticket title must not exceed 255 characters.',
             'description.required' => 'The ticket description is required.',
             'priority.in' => 'Priority must be one of: low, medium, high.',
+            'attachments.*.mimes' => 'Attachments must be of type: pdf, jpeg, png, jpg, docx, txt.',
         ];
     }
 
@@ -45,15 +48,15 @@ class StoreTicketRequest extends FormRequest
     {
         return new CreateTicketDTO(
             enterpriseId: auth()->user()->isSuperAdmin()
-                ? (int) $this->enterprise_id
-                : (int) auth()->user()->enterprise_id,
+            ? (int) $this->enterprise_id
+            : (int) auth()->user()->enterprise_id,
             sectorId: (int) $this->sector_id,
             requesterId: (int) auth()->id(),
             title: (string) $this->title,
             description: (string) $this->description,
             priority: $this->input('priority', 'low'),
             status: 'open',
-            attendantId: null,
+            attachments: $this->file('attachments', []),
         );
     }
 }

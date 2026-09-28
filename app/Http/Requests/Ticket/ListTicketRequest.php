@@ -48,9 +48,10 @@ class ListTicketRequest extends FormRequest
             status: $this->has('status') ? (string) $this->status : null,
             priority: $this->has('priority') ? (string) $this->priority : null,
             sectorId: $this->has('sector_id') ? (int) $this->sector_id : null,
+            hasAttachments: $this->has('has_attachments') ? (string) $this->has_attachments : null,
             enterpriseId: auth()->user()?->isSuperAdmin()
-                ? ($this->has('enterprise_id') ? (int) $this->enterprise_id : null)
-                : (int) auth()->user()?->enterprise_id,
+            ? ($this->has('enterprise_id') ? (int) $this->enterprise_id : null)
+            : (int) auth()->user()?->enterprise_id,
             perPage: (int) $this->input('per_page', 15),
         );
     }
