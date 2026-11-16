@@ -55,10 +55,10 @@ class StorePlanRequest extends FormRequest
     {
         return new PlanCreateDTO(
             name: $this->name,
-            max_users: $this->max_users,
-            max_tickets_per_month: $this->max_tickets_per_month,
-            storage_mb: $this->storage_mb,
-            price: $this->price,
+            maxUsers: (int) $this->max_users,
+            maxTicketsPerMonth: (int) $this->max_tickets_per_month,
+            storageMb: (int) $this->storage_mb,
+            price: (float) $this->price,
             active: $this->boolean('active', true),
         );
     }
