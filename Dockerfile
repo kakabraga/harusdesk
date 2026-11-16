@@ -38,13 +38,22 @@ WORKDIR /var/www/html
 # Copia configuração customizada do PHP
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 
-# Permissões pro usuário do Nginx/PHP-FPM
-RUN chown -R www-data:www-data /var/www/html
+# Copia os arquivos do Composer primeiro para aproveitar cache de camadas
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
 
-RUN mkdir -p /var/www/.config/psysh && chmod -R 777 /var/www/.config
+# Copia o código da aplicação
+COPY . .
+
+# Gera o autoload otimizado e garante estrutura de diretórios do Laravel
+RUN composer dump-autoload --optimize \
+    && mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache/data storage/logs bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache \
+    && mkdir -p /var/www/.config/psysh && chmod -R 777 /var/www/.config
 
 USER www-data
 
 EXPOSE 9000
 
-CMD ["php-fpm"]
+CMD ["sh", "-c", "if [ -n \"$PORT\" ]; then php artisan serve --host=0.0.0.0 --port=$PORT; else php-fpm; fi"]
