@@ -54,6 +54,6 @@ RUN composer dump-autoload --optimize \
 
 USER www-data
 
-EXPOSE 9000
+EXPOSE 8080
 
-CMD ["sh", "-c", "if [ -n \"$PORT\" ]; then php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT; else php-fpm; fi"]
+CMD ["sh", "-c", "if [ -n \"$RAILWAY_ENVIRONMENT\" ] || [ -n \"$PORT\" ]; then php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}; else php-fpm; fi"]
