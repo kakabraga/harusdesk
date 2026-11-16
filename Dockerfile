@@ -56,4 +56,4 @@ USER www-data
 
 EXPOSE 9000
 
-CMD ["sh", "-c", "if [ -n \"$PORT\" ]; then php artisan serve --host=0.0.0.0 --port=$PORT; else php-fpm; fi"]
+CMD ["sh", "-c", "if [ -n \"$PORT\" ]; then php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT; else php-fpm; fi"]
