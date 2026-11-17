@@ -11,7 +11,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->isAdmin() || $user->isSuperAdmin();
     }
 
     /**
@@ -19,7 +19,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return false;
+        return $user->isSuperAdmin() || ($user->isAdmin() && $user->enterprise_id === $model->enterprise_id) || $user->id === $model->id;
     }
 
     /**
@@ -27,7 +27,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->isAdmin() || $user->isSuperAdmin();
     }
 
     /**
@@ -35,7 +35,7 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return false;
+        return $user->isSuperAdmin() || ($user->isAdmin() && $user->enterprise_id === $model->enterprise_id);
     }
 
     /**
@@ -43,8 +43,7 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return $user->role === 'admin'
-            && $user->enterprise_id === $model->enterprise_id
+        return ($user->isSuperAdmin() || ($user->isAdmin() && $user->enterprise_id === $model->enterprise_id))
             && $user->id !== $model->id;
     }
 

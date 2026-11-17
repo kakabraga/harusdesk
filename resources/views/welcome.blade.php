@@ -421,6 +421,18 @@
                     </button>
 
                     <button 
+                        @click="activeTab = 'users'; loadUsers()"
+                        :class="activeTab === 'users' ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                        class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition"
+                    >
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                            Usuários & Equipe
+                        </div>
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-slate-950/60 text-slate-300" x-text="users.length"></span>
+                    </button>
+
+                    <button 
                         @click="activeTab = 'plans'; loadPlans()"
                         :class="activeTab === 'plans' ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
                         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition"
@@ -447,7 +459,7 @@
                 <!-- Topbar Header -->
                 <header class="h-16 border-b border-slate-800 px-6 flex items-center justify-between shrink-0 bg-slate-900/40 backdrop-blur-md">
                     <div class="flex items-center gap-4">
-                        <h2 class="text-lg font-bold text-white capitalize" x-text="activeTab === 'dashboard' ? 'Visão Geral' : activeTab === 'tickets' ? 'Central de Chamados' : activeTab === 'sectors' ? 'Gestão de Setores' : 'Planos & Assinaturas'"></h2>
+                        <h2 class="text-lg font-bold text-white capitalize" x-text="activeTab === 'dashboard' ? 'Visão Geral' : activeTab === 'tickets' ? 'Central de Chamados' : activeTab === 'sectors' ? 'Gestão de Setores' : activeTab === 'users' ? 'Usuários & Equipe' : 'Planos & Assinaturas'"></h2>
                         <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
                             <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
                             Tenant Isolation Ativo
@@ -464,7 +476,16 @@
                                 Novo Setor
                             </button>
                         </template>
-                        <template x-if="activeTab !== 'sectors'">
+                        <template x-if="activeTab === 'users'">
+                            <button 
+                                @click="openNewUserModal()"
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 transition"
+                            >
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                Novo Usuário
+                            </button>
+                        </template>
+                        <template x-if="activeTab !== 'sectors' && activeTab !== 'users'">
                             <button 
                                 @click="openNewTicketModal()"
                                 class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 transition"
@@ -783,6 +804,120 @@
                                     </div>
                                 </div>
                             </template>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- TAB 5: USUÁRIOS & EQUIPE -->
+                    <!-- ========================================== -->
+                    <div x-show="activeTab === 'users'" class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-white text-base">Usuários e Colaboradores</h3>
+                                <p class="text-xs text-slate-400">Gerencie a equipe da empresa e seus vínculos com setores</p>
+                            </div>
+                            <button 
+                                @click="openNewUserModal()" 
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg transition"
+                            >
+                                <i data-lucide="plus" class="w-4 h-4"></i> Novo Usuário
+                            </button>
+                        </div>
+
+                        <!-- Tabela de Usuários -->
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-slate-800 bg-slate-950/40 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                                            <th class="py-3.5 px-4">Usuário</th>
+                                            <th class="py-3.5 px-4">Perfil</th>
+                                            <th class="py-3.5 px-4">Setores Vinculados</th>
+                                            <th class="py-3.5 px-4">Status</th>
+                                            <th class="py-3.5 px-4 text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-800/60 text-sm">
+                                        <template x-for="u in users" :key="u.id">
+                                            <tr class="hover:bg-slate-800/30 transition">
+                                                <td class="py-3.5 px-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-8 h-8 rounded-full bg-brand-500/20 text-brand-300 font-bold flex items-center justify-center text-xs" x-text="u.name ? u.name.charAt(0).toUpperCase() : 'U'"></div>
+                                                        <div>
+                                                            <div class="font-semibold text-white flex items-center gap-2">
+                                                                <span x-text="u.name"></span>
+                                                                <template x-if="u.id === user?.id">
+                                                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30 font-medium">Você</span>
+                                                                </template>
+                                                            </div>
+                                                            <div class="text-xs text-slate-400 font-mono" x-text="u.email"></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3.5 px-4">
+                                                    <span 
+                                                        class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                                                        :class="{
+                                                            'bg-purple-500/10 text-purple-400 border border-purple-500/30': u.role === 'super_admin',
+                                                            'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30': u.role === 'admin',
+                                                            'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30': u.role === 'attendant',
+                                                            'bg-slate-800 text-slate-300 border border-slate-700': u.role === 'requester' || u.role === 'user'
+                                                        }"
+                                                        x-text="formatRole(u.role)"
+                                                    ></span>
+                                                </td>
+                                                <td class="py-3.5 px-4">
+                                                    <div class="flex flex-wrap items-center gap-1.5 max-w-xs">
+                                                        <template x-for="sec in (u.sectors || [])" :key="sec.id">
+                                                            <span class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700/60" x-text="sec.name"></span>
+                                                        </template>
+                                                        <template x-if="!u.sectors || u.sectors.length === 0">
+                                                            <span class="text-xs text-slate-500 italic">Nenhum setor</span>
+                                                        </template>
+                                                        <button 
+                                                            @click="openEditUserSectorsModal(u)" 
+                                                            class="text-xs text-brand-400 hover:text-brand-300 p-1 rounded hover:bg-slate-800 ml-1 inline-flex items-center gap-1"
+                                                            title="Gerenciar setores deste usuário"
+                                                        >
+                                                            <i data-lucide="tag" class="w-3.5 h-3.5"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3.5 px-4">
+                                                    <span class="text-xs px-2 py-0.5 rounded-full font-medium" :class="u.active !== false ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-500 bg-slate-800'" x-text="u.active !== false ? 'Ativo' : 'Inativo'"></span>
+                                                </td>
+                                                <td class="py-3.5 px-4 text-right">
+                                                    <div class="inline-flex items-center gap-1.5">
+                                                        <button 
+                                                            @click="openEditUserSectorsModal(u)" 
+                                                            class="p-1.5 rounded-lg text-slate-400 hover:text-brand-300 hover:bg-slate-800 transition"
+                                                            title="Vincular Setores"
+                                                        >
+                                                            <i data-lucide="building" class="w-4 h-4"></i>
+                                                        </button>
+                                                        <template x-if="u.id !== user?.id && (user?.role === 'admin' || user?.role === 'super_admin')">
+                                                            <button 
+                                                                @click="deleteUser(u.id)" 
+                                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition"
+                                                                title="Excluir Usuário"
+                                                            >
+                                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                            </button>
+                                                        </template>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="users.length === 0">
+                                            <tr>
+                                                <td colspan="5" class="py-12 text-center text-slate-400 text-sm">
+                                                    Nenhum usuário encontrado na sua empresa.
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
@@ -1105,6 +1240,119 @@
             </div>
         </div>
 
+        <!-- ======================================================== -->
+        <!-- MODAL: NOVO USUÁRIO -->
+        <!-- ======================================================== -->
+        <div 
+            x-show="userModal.open" 
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+            x-transition
+        >
+            <div @click.outside="userModal.open = false" class="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <h3 class="font-bold text-white text-base">Novo Usuário</h3>
+                    <button @click="userModal.open = false" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+
+                <form @submit.prevent="submitCreateUser()" class="mt-4 space-y-3.5">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Nome Completo</label>
+                        <input type="text" x-model="userModal.name" required placeholder="Ex: João Silva" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-white focus:border-brand-500 outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">E-mail</label>
+                            <input type="email" x-model="userModal.email" required placeholder="joao@empresa.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-white focus:border-brand-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Perfil de Acesso</label>
+                            <select x-model="userModal.role" required class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-xs text-white focus:border-brand-500 outline-none">
+                                <option value="requester">Solicitante (Abre chamados)</option>
+                                <option value="attendant">Atendente (Responde chamados)</option>
+                                <option value="admin">Administrador (Gerencia equipe)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Senha (mín. 8 caracteres)</label>
+                            <input type="password" minlength="8" x-model="userModal.password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-white focus:border-brand-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Confirmar Senha</label>
+                            <input type="password" minlength="8" x-model="userModal.password_confirmation" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-white focus:border-brand-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Vínculo com Setores -->
+                    <div class="pt-2 border-t border-slate-800">
+                        <label class="block text-xs font-semibold text-brand-400 uppercase tracking-wider mb-2">Vincular aos Setores da Empresa</label>
+                        <div class="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-2 rounded-xl bg-slate-950 border border-slate-800/80">
+                            <template x-for="s in sectors" :key="s.id">
+                                <label class="flex items-center gap-2 text-xs text-slate-300 p-1.5 rounded hover:bg-slate-900 cursor-pointer">
+                                    <input type="checkbox" :value="s.id" x-model="userModal.sector_ids" class="rounded bg-slate-900 border-slate-700 text-brand-600 focus:ring-brand-500">
+                                    <span class="truncate" x-text="s.name"></span>
+                                </label>
+                            </template>
+                            <template x-if="sectors.length === 0">
+                                <div class="col-span-2 text-center text-xs text-slate-500 py-2">
+                                    Nenhum setor cadastrado ainda.
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+                        <button type="button" @click="userModal.open = false" class="px-3.5 py-1.5 rounded-xl text-xs text-slate-300 hover:bg-slate-800">Cancelar</button>
+                        <button type="submit" :disabled="userModal.loading" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white disabled:opacity-50">
+                            <span x-show="!userModal.loading">Criar Usuário</span>
+                            <span x-show="userModal.loading">Salvando...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- MODAL: GERENCIAR VÍNCULOS DE SETORES -->
+        <!-- ======================================================== -->
+        <div 
+            x-show="userSectorsModal.open" 
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+            x-transition
+        >
+            <div @click.outside="userSectorsModal.open = false" class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div>
+                        <h3 class="font-bold text-white text-base">Vincular Setores</h3>
+                        <p class="text-xs text-slate-400" x-text="`Colaborador: ${userSectorsModal.user?.name}`"></p>
+                    </div>
+                    <button @click="userSectorsModal.open = false" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+
+                <form @submit.prevent="submitUserSectors()" class="mt-4 space-y-4">
+                    <div class="space-y-2 max-h-60 overflow-y-auto p-3 rounded-xl bg-slate-950 border border-slate-800">
+                        <template x-for="s in sectors" :key="s.id">
+                            <label class="flex items-center justify-between text-xs text-slate-300 p-2 rounded-lg hover:bg-slate-900 cursor-pointer">
+                                <span class="font-medium text-white" x-text="s.name"></span>
+                                <input type="checkbox" :value="s.id" x-model="userSectorsModal.sector_ids" class="rounded bg-slate-900 border-slate-700 text-brand-600 focus:ring-brand-500">
+                            </label>
+                        </template>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+                        <button type="button" @click="userSectorsModal.open = false" class="px-3.5 py-1.5 rounded-xl text-xs text-slate-300 hover:bg-slate-800">Cancelar</button>
+                        <button type="submit" :disabled="userSectorsModal.loading" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white disabled:opacity-50">
+                            <span x-show="!userSectorsModal.loading">Salvar Vínculos</span>
+                            <span x-show="userSectorsModal.loading">Atualizando...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         </div>
     </template>
 
@@ -1121,6 +1369,7 @@
                 loading: false,
                 tickets: [],
                 sectors: [],
+                users: [],
                 plans: [],
                 toasts: [],
 
@@ -1178,6 +1427,24 @@
                     price: 99.90
                 },
 
+                userModal: {
+                    open: false,
+                    name: '',
+                    email: '',
+                    role: 'requester',
+                    password: '',
+                    password_confirmation: '',
+                    sector_ids: [],
+                    loading: false
+                },
+
+                userSectorsModal: {
+                    open: false,
+                    user: null,
+                    sector_ids: [],
+                    loading: false
+                },
+
                 initApp() {
                     this.$nextTick(() => {
                         lucide.createIcons();
@@ -1187,6 +1454,7 @@
                         this.loadSectors();
                         this.loadTickets();
                         this.loadPlans();
+                        this.loadUsers();
                     } else {
                         this.loadPlans();
                     }
@@ -1526,11 +1794,114 @@
                     }
                 },
 
+                // Users
+                async loadUsers() {
+                    try {
+                        const res = await this.api('/api/users');
+                        this.users = res.data || [];
+                    } catch (err) {}
+                    this.$nextTick(() => lucide.createIcons());
+                },
+
+                openNewUserModal() {
+                    if (this.user?.role === 'requester') {
+                        this.showToast('Solicitantes não têm permissão para criar usuários. Acesse como Administrador.', 'error');
+                        return;
+                    }
+                    this.userModal.name = '';
+                    this.userModal.email = '';
+                    this.userModal.role = 'requester';
+                    this.userModal.password = '';
+                    this.userModal.password_confirmation = '';
+                    this.userModal.sector_ids = [];
+                    this.userModal.open = true;
+                    this.$nextTick(() => lucide.createIcons());
+                },
+
+                async submitCreateUser() {
+                    this.userModal.loading = true;
+                    try {
+                        const payload = {
+                            name: this.userModal.name,
+                            email: this.userModal.email,
+                            role: this.userModal.role,
+                            password: this.userModal.password,
+                            password_confirmation: this.userModal.password_confirmation,
+                            sector_ids: this.userModal.sector_ids.map(Number)
+                        };
+
+                        if (this.user?.role === 'super_admin') {
+                            payload.enterprise_id = this.user.enterprise_id || (this.sectors[0]?.enterprise_id || 1);
+                        }
+
+                        await this.api('/api/users', {
+                            method: 'POST',
+                            body: JSON.stringify(payload)
+                        });
+
+                        this.showToast('Usuário cadastrado com sucesso!', 'success');
+                        this.userModal.open = false;
+                        await this.loadUsers();
+                    } catch (err) {
+                        this.showToast(err.message, 'error');
+                    } finally {
+                        this.userModal.loading = false;
+                        this.$nextTick(() => lucide.createIcons());
+                    }
+                },
+
+                openEditUserSectorsModal(u) {
+                    if (this.user?.role === 'requester') {
+                        this.showToast('Solicitantes não têm permissão para gerenciar setores.', 'error');
+                        return;
+                    }
+                    this.userSectorsModal.user = u;
+                    this.userSectorsModal.sector_ids = (u.sectors || []).map(s => s.id);
+                    this.userSectorsModal.open = true;
+                    this.$nextTick(() => lucide.createIcons());
+                },
+
+                async submitUserSectors() {
+                    this.userSectorsModal.loading = true;
+                    try {
+                        await this.api(`/api/users/${this.userSectorsModal.user.id}/sectors`, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                sector_ids: this.userSectorsModal.sector_ids.map(Number)
+                            })
+                        });
+
+                        this.showToast('Vínculos de setores atualizados com sucesso!', 'success');
+                        this.userSectorsModal.open = false;
+                        await this.loadUsers();
+                    } catch (err) {
+                        this.showToast(err.message, 'error');
+                    } finally {
+                        this.userSectorsModal.loading = false;
+                        this.$nextTick(() => lucide.createIcons());
+                    }
+                },
+
+                async deleteUser(id) {
+                    if (!confirm(`Deseja realmente remover o usuário #${id}?`)) return;
+                    try {
+                        await this.api(`/api/users/${id}`, { method: 'DELETE' });
+                        this.showToast(`Usuário #${id} excluído com sucesso.`, 'info');
+                        await this.loadUsers();
+                    } catch (err) {
+                        this.showToast(err.message, 'error');
+                    }
+                },
+
                 refreshCurrentTab() {
                     if (this.activeTab === 'tickets' || this.activeTab === 'dashboard') {
                         this.loadTickets();
                         this.loadSectors();
+                        this.loadUsers();
                     } else if (this.activeTab === 'sectors') {
+                        this.loadSectors();
+                    } else if (this.activeTab === 'users') {
+                        this.loadUsers();
                         this.loadSectors();
                     } else if (this.activeTab === 'plans') {
                         this.loadPlans();

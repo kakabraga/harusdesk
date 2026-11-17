@@ -15,8 +15,14 @@ class StoreUserRequest extends FormRequest
 
     public function rules(): array
     {
+        $isSuperAdmin = auth()->user()?->isSuperAdmin();
+
         return [
-            'enterprise_id' => ['required', 'integer', 'exists:enterprises,id'],
+            'enterprise_id' => [
+                $isSuperAdmin ? 'required' : 'nullable',
+                'integer',
+                'exists:enterprises,id',
+            ],
 
             'name' => ['required', 'string', 'max:255'],
 
@@ -37,8 +43,11 @@ class StoreUserRequest extends FormRequest
             'role' => [
                 'required',
                 'string',
-                'in:admin,attendant,user',
+                'in:admin,attendant,requester,user',
             ],
+
+            'sector_ids' => ['nullable', 'array'],
+            'sector_ids.*' => ['integer', 'exists:sectors,id'],
         ];
     }
 
@@ -64,13 +73,19 @@ class StoreUserRequest extends FormRequest
 
     public function toDto(): CreateUserDTO
     {
+        $enterpriseId = auth()->user()?->isSuperAdmin()
+            ? (int) $this->input('enterprise_id', 1)
+            : (int) auth()->user()->enterprise_id;
+
+        $role = $this->role === 'user' ? 'requester' : $this->role;
+
         return new CreateUserDTO(
-            enterprise_id: $this->enterprise_id,
+            enterprise_id: $enterpriseId,
             name: $this->name,
             email: $this->email,
             password: $this->password,
-            newPassword: $this->newPassword,
-            role: $this->role,
+            newPassword: null,
+            role: $role,
         );
     }
 }
