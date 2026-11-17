@@ -12,6 +12,11 @@ use App\Models\Plan;
 
 class PlanController extends Controller
 {
+    public function index()
+    {
+        return ApiResponse::success(Plan::where('active', true)->get(), 'Plans retrieved successfully.');
+    }
+
     public function store(StorePlanRequest $request, CreatePlanAction $action)
     {
 
