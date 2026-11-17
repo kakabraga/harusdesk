@@ -33,7 +33,7 @@ class TicketRepository implements TicketRepositoryInterface
 
     public function list(ListTicketDTO $dto, User $user): LengthAwarePaginator
     {
-        $query = Ticket::query();
+        $query = Ticket::query()->with(['requester:id,name,email', 'sector:id,name', 'attendant:id,name,email']);
 
         $this->applyUserScope($query, $user, $dto);
         $this->applyFilters($query, $dto);

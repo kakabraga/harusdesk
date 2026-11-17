@@ -12,6 +12,7 @@ class Interaction extends Model
     use BelongsToEnterprise;
 
     protected $fillable = [
+        'enterprise_id',
         'ticket_id',
         'user_id',
         'content',

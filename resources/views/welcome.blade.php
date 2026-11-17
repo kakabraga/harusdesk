@@ -398,7 +398,7 @@
 
                     <button 
                         @click="activeTab = 'tickets'; loadTickets()"
-                        :class="activeTab === 'tickets' ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+                        :class="(activeTab === 'tickets' || activeTab === 'ticket_chat') ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
                         class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition"
                     >
                         <div class="flex items-center gap-3">
@@ -459,7 +459,7 @@
                 <!-- Topbar Header -->
                 <header class="h-16 border-b border-slate-800 px-6 flex items-center justify-between shrink-0 bg-slate-900/40 backdrop-blur-md">
                     <div class="flex items-center gap-4">
-                        <h2 class="text-lg font-bold text-white capitalize" x-text="activeTab === 'dashboard' ? 'Visão Geral' : activeTab === 'tickets' ? 'Central de Chamados' : activeTab === 'sectors' ? 'Gestão de Setores' : activeTab === 'users' ? 'Usuários & Equipe' : 'Planos & Assinaturas'"></h2>
+                        <h2 class="text-lg font-bold text-white capitalize" x-text="activeTab === 'dashboard' ? 'Visão Geral' : activeTab === 'tickets' ? 'Central de Chamados' : activeTab === 'ticket_chat' ? (`Atendimento: #${chat.ticket?.id || ''} ${chat.ticket?.title || ''}`) : activeTab === 'sectors' ? 'Gestão de Setores' : activeTab === 'users' ? 'Usuários & Equipe' : 'Planos & Assinaturas'"></h2>
                         <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
                             <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
                             Tenant Isolation Ativo
@@ -577,6 +577,11 @@
                                             <div class="min-w-0">
                                                 <div class="text-sm font-semibold text-white truncate" x-text="ticket.title"></div>
                                                 <div class="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
+                                                    <span class="text-slate-300 font-medium flex items-center gap-1">
+                                                        <i data-lucide="user" class="w-3 h-3 text-slate-500"></i>
+                                                        <span x-text="ticket.requester?.name || ticket.requester_name || `Usuário #${ticket.requester_id}`"></span>
+                                                    </span>
+                                                    <span>•</span>
                                                     <span x-text="getSectorName(ticket.sector_id)"></span>
                                                     <span>•</span>
                                                     <span x-text="formatDate(ticket.created_at)"></span>
@@ -654,6 +659,7 @@
                                         <tr class="border-b border-slate-800 bg-slate-950/40 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                                             <th class="py-3.5 px-4">#ID</th>
                                             <th class="py-3.5 px-4">Título do Chamado</th>
+                                            <th class="py-3.5 px-4">Solicitante</th>
                                             <th class="py-3.5 px-4">Setor</th>
                                             <th class="py-3.5 px-4">Prioridade</th>
                                             <th class="py-3.5 px-4">Status</th>
@@ -670,6 +676,15 @@
                                                     <div class="text-xs text-slate-400 truncate max-w-xs" x-text="t.description"></div>
                                                 </td>
                                                 <td class="py-3.5 px-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="w-6 h-6 rounded-full bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center text-[10px] font-bold uppercase shrink-0" x-text="(t.requester?.name || t.requester_name || 'S').charAt(0)"></div>
+                                                        <div class="min-w-0">
+                                                            <div class="text-xs font-semibold text-white truncate max-w-[140px]" x-text="t.requester?.name || t.requester_name || `Usuário #${t.requester_id}`"></div>
+                                                            <div class="text-[10px] text-slate-500 truncate max-w-[140px]" x-text="t.requester?.email || ''"></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3.5 px-4">
                                                     <span class="text-xs text-slate-300 font-medium px-2 py-0.5 rounded-md bg-slate-800" x-text="getSectorName(t.sector_id)"></span>
                                                 </td>
                                                 <td class="py-3.5 px-4">
@@ -681,14 +696,25 @@
                                                 <td class="py-3.5 px-4 text-xs text-slate-400" x-text="formatDate(t.created_at)"></td>
                                                 <td class="py-3.5 px-4 text-right">
                                                     <div class="inline-flex items-center gap-1">
+                                                        <!-- Botão Olhinho (Detalhes do Chamado) -->
                                                         <button 
                                                             @click="openDetailModal(t)"
-                                                            title="Ver Detalhes"
+                                                            title="Ver Detalhes do Chamado"
                                                             class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
                                                         >
                                                             <i data-lucide="eye" class="w-4 h-4"></i>
                                                         </button>
+                                                        <!-- Botão Interagir / Atendimento -->
                                                         <button 
+                                                            @click="openTicketChat(t)"
+                                                            title="Abrir Tela de Interação"
+                                                            class="p-1.5 rounded-lg text-indigo-400 hover:text-white hover:bg-indigo-600/40 transition"
+                                                        >
+                                                            <i data-lucide="message-square" class="w-4 h-4"></i>
+                                                        </button>
+                                                        <!-- Botão Excluir Chamado (Admin ou Super Admin) -->
+                                                        <button 
+                                                            x-show="user?.role === 'admin' || user?.role === 'super_admin'"
                                                             @click="deleteTicket(t.id)"
                                                             title="Excluir Chamado"
                                                             class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition"
@@ -701,13 +727,231 @@
                                         </template>
                                         <template x-if="filteredTickets.length === 0">
                                             <tr>
-                                                <td colspan="7" class="py-12 text-center text-slate-400 text-sm">
+                                                <td colspan="8" class="py-12 text-center text-slate-400 text-sm">
                                                     Nenhum chamado corresponde aos filtros aplicados.
                                                 </td>
                                             </tr>
                                         </template>
                                     </tbody>
                                 </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- TAB 2.5: TELA DE INTERAÇÃO (TICKET CHAT) -->
+                    <!-- ========================================== -->
+                    <div x-show="activeTab === 'ticket_chat'" class="space-y-4">
+                        <!-- Topo da Central de Atendimento -->
+                        <div class="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <button 
+                                    @click="closeTicketChat()" 
+                                    class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition shrink-0" 
+                                    title="Voltar para Chamados"
+                                >
+                                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                </button>
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-xs font-mono font-bold text-slate-400" x-text="`#${chat.ticket?.id}`"></span>
+                                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full" :class="getStatusBadgeClass(chat.ticket?.status)" x-text="formatStatus(chat.ticket?.status)"></span>
+                                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full" :class="getPriorityBadgeClass(chat.ticket?.priority)" x-text="formatPriority(chat.ticket?.priority)"></span>
+                                        <span class="text-xs text-slate-400 px-2 py-0.5 rounded-md bg-slate-800" x-text="getSectorName(chat.ticket?.sector_id)"></span>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-white mt-1 truncate" x-text="chat.ticket?.title"></h3>
+                                </div>
+                            </div>
+
+                            <!-- Ações Rápidas do Chamado -->
+                            <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                                <!-- Assumir Chamado (se atendente não atribuído e não for solicitante) -->
+                                <template x-if="!chat.ticket?.attendant_id && user?.role !== 'requester'">
+                                    <button 
+                                        @click="assignTicketToMe()" 
+                                        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5"
+                                    >
+                                        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Assumir Chamado
+                                    </button>
+                                </template>
+
+                                <!-- Concluir Chamado -->
+                                <template x-if="chat.ticket?.status !== 'concluded'">
+                                    <button 
+                                        @click="updateTicketStatusFromChat('concluded')" 
+                                        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition flex items-center gap-1.5"
+                                    >
+                                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Concluir Chamado
+                                    </button>
+                                </template>
+
+                                <!-- Reabrir Chamado (se concluído) -->
+                                <template x-if="chat.ticket?.status === 'concluded'">
+                                    <button 
+                                        @click="updateTicketStatusFromChat('in_progress')" 
+                                        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white shadow-lg shadow-amber-600/30 transition flex items-center gap-1.5"
+                                    >
+                                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reabrir Chamado
+                                    </button>
+                                </template>
+
+                                <button 
+                                    @click="closeTicketChat()" 
+                                    class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+                                >
+                                    Voltar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Participantes: Solicitante & Atendente -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Card Solicitante -->
+                            <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-3 shadow-lg">
+                                <div class="w-10 h-10 rounded-full bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center font-bold text-sm shrink-0 uppercase" x-text="(chat.ticket?.requester?.name || chat.ticket?.requester_name || 'S').charAt(0)"></div>
+                                <div class="min-w-0">
+                                    <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Solicitante</div>
+                                    <div class="text-sm font-bold text-white truncate" x-text="chat.ticket?.requester?.name || chat.ticket?.requester_name || `Usuário #${chat.ticket?.requester_id}`"></div>
+                                    <div class="text-xs text-slate-400 truncate" x-text="chat.ticket?.requester?.email || 'Sem email'"></div>
+                                </div>
+                            </div>
+
+                            <!-- Card Atendente -->
+                            <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-3 shadow-lg">
+                                <div class="w-10 h-10 rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold text-sm shrink-0 uppercase" x-text="(chat.ticket?.attendant?.name || chat.ticket?.attendant_name || 'A').charAt(0)"></div>
+                                <div class="min-w-0">
+                                    <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Atendente Técnico</div>
+                                    <div class="text-sm font-bold text-white truncate" x-text="chat.ticket?.attendant?.name || chat.ticket?.attendant_name || 'Aguardando atribuição'"></div>
+                                    <div class="text-xs text-slate-400 truncate" x-text="chat.ticket?.attendant?.email || 'Nenhum atendente alocado no momento'"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Feed de Interações e Linha do Tempo -->
+                        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[600px]">
+                            <!-- Área de Mensagens (Rolável) -->
+                            <div id="chatFeed" class="flex-1 overflow-y-auto p-5 space-y-4">
+                                <!-- Mensagem de Abertura do Chamado (Post inicial) -->
+                                <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800/80 space-y-3">
+                                    <div class="flex items-center justify-between pb-2 border-b border-slate-800/60">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-7 h-7 rounded-full bg-brand-600/30 border border-brand-500/30 text-brand-300 flex items-center justify-center text-xs font-bold uppercase" x-text="(chat.ticket?.requester?.name || chat.ticket?.requester_name || 'S').charAt(0)"></div>
+                                            <div>
+                                                <div class="text-xs font-bold text-white flex items-center gap-2">
+                                                    <span x-text="chat.ticket?.requester?.name || chat.ticket?.requester_name || 'Solicitante'"></span>
+                                                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30 font-semibold">Abertura</span>
+                                                </div>
+                                                <div class="text-[10px] text-slate-400" x-text="formatDate(chat.ticket?.created_at)"></div>
+                                            </div>
+                                        </div>
+                                        <span class="text-[11px] text-slate-500 font-mono">Descrição Original</span>
+                                    </div>
+
+                                    <div class="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed" x-text="chat.ticket?.description"></div>
+
+                                    <!-- Anexos da Abertura -->
+                                    <template x-if="chat.ticket?.attachments && chat.ticket.attachments.length > 0">
+                                        <div class="pt-2 border-t border-slate-800/40">
+                                            <div class="text-[10px] uppercase font-bold text-slate-400 mb-1.5">Anexos do chamado:</div>
+                                            <div class="flex flex-wrap gap-2">
+                                                <template x-for="att in chat.ticket.attachments" :key="att.id">
+                                                    <a :href="`/api/attachments/${att.id}/download`" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs text-brand-300 hover:text-white hover:bg-slate-800 transition">
+                                                        <i data-lucide="paperclip" class="w-3 h-3"></i>
+                                                        <span class="truncate max-w-[160px]" x-text="att.original_name"></span>
+                                                        <span class="text-[10px] text-slate-500" x-text="`(${att.size_kb} KB)`"></span>
+                                                    </a>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <!-- Divisor de Histórico de Conversa -->
+                                <div class="flex items-center gap-3 my-2">
+                                    <div class="flex-1 h-px bg-slate-800"></div>
+                                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Histórico de Mensagens & Respostas</span>
+                                    <div class="flex-1 h-px bg-slate-800"></div>
+                                </div>
+
+                                <!-- Lista de Interações do Chat -->
+                                <template x-for="inter in chat.interactions" :key="inter.id">
+                                    <div class="flex flex-col space-y-1" :class="inter.user_id === user?.id ? 'items-end' : 'items-start'">
+                                        <!-- Header da Mensagem -->
+                                        <div class="flex items-center gap-2 px-1 text-[11px] text-slate-400">
+                                            <span class="font-bold text-slate-300" x-text="inter.user?.name || `Usuário #${inter.user_id}`"></span>
+                                            <span class="text-[10px] px-1.5 py-0.2 rounded font-semibold"
+                                                :class="inter.user?.role === 'requester' ? 'bg-brand-500/20 text-brand-300 border border-brand-500/30' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'"
+                                                x-text="inter.user?.role === 'requester' ? 'Solicitante' : (inter.user?.role === 'admin' ? 'Administrador' : 'Atendente')"
+                                            ></span>
+                                            <span>•</span>
+                                            <span x-text="formatDate(inter.created_at)"></span>
+                                        </div>
+
+                                        <!-- Balão da Mensagem -->
+                                        <div 
+                                            class="max-w-2xl p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap shadow-md"
+                                            :class="inter.user_id === user?.id ? 'bg-gradient-to-r from-indigo-700 to-brand-600 text-white rounded-tr-none' : 'bg-slate-950 border border-slate-800 text-slate-200 rounded-tl-none'"
+                                            x-text="inter.content"
+                                        ></div>
+                                    </div>
+                                </template>
+
+                                <!-- Sem Interações -->
+                                <template x-if="chat.interactions.length === 0">
+                                    <div class="p-8 text-center text-slate-400 text-sm bg-slate-950/40 rounded-2xl border border-dashed border-slate-800">
+                                        <i data-lucide="messages-square" class="w-8 h-8 mx-auto text-slate-600 mb-2"></i>
+                                        <div class="font-semibold text-white">Nenhuma resposta registrada ainda</div>
+                                        <div class="text-xs text-slate-500 mt-1">Envie a primeira resposta abaixo para iniciar o diálogo entre atendente e solicitante.</div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Composer: Caixa de Envio de Mensagem -->
+                            <div class="p-4 border-t border-slate-800 bg-slate-950/90">
+                                <form @submit.prevent="sendChatMessage()" class="space-y-3">
+                                    <div class="relative">
+                                        <textarea 
+                                            x-model="chat.messageText" 
+                                            @keydown.ctrl.enter.prevent="sendChatMessage()" 
+                                            rows="3" 
+                                            placeholder="Digite sua mensagem aqui... (Pressione Ctrl+Enter para enviar)"
+                                            class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-sm text-white placeholder-slate-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none resize-none"
+                                            required
+                                        ></textarea>
+                                    </div>
+
+                                    <div class="flex items-center justify-between">
+                                        <div class="text-[11px] text-slate-500 flex items-center gap-1.5">
+                                            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                                            Pressione <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-mono text-[10px] text-slate-300">Ctrl+Enter</kbd> para enviar rapidamente
+                                        </div>
+
+                                        <div class="flex items-center gap-2">
+                                            <!-- Enviar e Concluir Chamado -->
+                                            <template x-if="chat.ticket?.status !== 'concluded'">
+                                                <button 
+                                                    type="button" 
+                                                    @click="sendChatMessage('concluded')" 
+                                                    :disabled="chat.sending || !chat.messageText.trim()"
+                                                    class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 transition disabled:opacity-50"
+                                                >
+                                                    Responder & Concluir
+                                                </button>
+                                            </template>
+
+                                            <!-- Botão Principal de Envio -->
+                                            <button 
+                                                type="submit" 
+                                                :disabled="chat.sending || !chat.messageText.trim()"
+                                                class="px-5 py-2 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/30 transition flex items-center gap-2 disabled:opacity-50"
+                                            >
+                                                <span x-show="!chat.sending">Enviar Mensagem</span>
+                                                <span x-show="chat.sending">Enviando...</span>
+                                                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -1070,9 +1314,30 @@
                         <span class="text-xs text-slate-400 px-2 py-0.5 rounded-md bg-slate-800" x-text="`Setor: ${getSectorName(detailModal.ticket?.sector_id)}`"></span>
                     </div>
 
+                    <!-- Informações do Solicitante e Atendente -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-full bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center text-xs font-bold uppercase shrink-0" x-text="(detailModal.ticket?.requester?.name || detailModal.ticket?.requester_name || 'S').charAt(0)"></div>
+                            <div class="min-w-0">
+                                <div class="text-[10px] font-semibold text-slate-400 uppercase">Solicitante</div>
+                                <div class="text-xs font-bold text-white truncate" x-text="detailModal.ticket?.requester?.name || detailModal.ticket?.requester_name || `Usuário #${detailModal.ticket?.requester_id}`"></div>
+                                <div class="text-[11px] text-slate-400 truncate" x-text="detailModal.ticket?.requester?.email || ''"></div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-xs font-bold uppercase shrink-0" x-text="(detailModal.ticket?.attendant?.name || detailModal.ticket?.attendant_name || 'A').charAt(0)"></div>
+                            <div class="min-w-0">
+                                <div class="text-[10px] font-semibold text-slate-400 uppercase">Atendente</div>
+                                <div class="text-xs font-bold text-white truncate" x-text="detailModal.ticket?.attendant?.name || detailModal.ticket?.attendant_name || 'Aguardando atribuição'"></div>
+                                <div class="text-[11px] text-slate-400 truncate" x-text="detailModal.ticket?.attendant?.email || 'Nenhum'"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Descrição -->
                     <div>
-                        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Descrição</div>
+                        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Descrição do Problema / Solicitação</div>
                         <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-sm text-slate-200 whitespace-pre-wrap leading-relaxed" x-text="detailModal.ticket?.description"></div>
                     </div>
 
@@ -1110,38 +1375,63 @@
                         </template>
                     </div>
 
-                    <!-- Mudar Status Rápido -->
-                    <div class="pt-3 border-t border-slate-800">
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Alterar Status</label>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <!-- Ação Principal de Andamento e Interação -->
+                    <div class="pt-4 border-t border-slate-800 space-y-3">
+                        <!-- Se status NÃO for 'in_progress': Botão para Colocar em Andamento e Abrir Tela de Interação -->
+                        <template x-if="detailModal.ticket?.status !== 'in_progress'">
                             <button 
-                                @click="updateTicketStatus(detailModal.ticket.id, 'open')"
-                                class="py-1.5 px-2.5 rounded-lg text-xs font-semibold border transition"
-                                :class="detailModal.ticket?.status === 'open' ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'"
+                                @click="startTicketProgress(detailModal.ticket)" 
+                                class="w-full py-3 px-4 rounded-xl text-sm font-bold bg-gradient-to-r from-indigo-600 to-brand-600 hover:from-indigo-500 hover:to-brand-500 text-white shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition"
                             >
-                                Aberto
+                                <i data-lucide="play-circle" class="w-5 h-5"></i>
+                                Colocar em Andamento & Abrir Interação
                             </button>
+                        </template>
+
+                        <!-- Se status JÁ for 'in_progress': Botão para ir para a Tela de Interação -->
+                        <template x-if="detailModal.ticket?.status === 'in_progress'">
                             <button 
-                                @click="updateTicketStatus(detailModal.ticket.id, 'in_progress')"
-                                class="py-1.5 px-2.5 rounded-lg text-xs font-semibold border transition"
-                                :class="detailModal.ticket?.status === 'in_progress' ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'"
+                                @click="detailModal.open = false; openTicketChat(detailModal.ticket)" 
+                                class="w-full py-3 px-4 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition"
                             >
-                                Em Progresso
+                                <i data-lucide="message-square" class="w-5 h-5"></i>
+                                Abrir Tela de Interação (Chat Atendente / Solicitante)
                             </button>
-                            <button 
-                                @click="updateTicketStatus(detailModal.ticket.id, 'concluded')"
-                                class="py-1.5 px-2.5 rounded-lg text-xs font-semibold border transition"
-                                :class="detailModal.ticket?.status === 'concluded' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'"
-                            >
-                                Concluído
-                            </button>
-                            <button 
-                                @click="updateTicketStatus(detailModal.ticket.id, 'cancelled')"
-                                class="py-1.5 px-2.5 rounded-lg text-xs font-semibold border transition"
-                                :class="detailModal.ticket?.status === 'cancelled' ? 'bg-rose-500/20 text-rose-300 border-rose-500/50' : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'"
-                            >
-                                Cancelado
-                            </button>
+                        </template>
+
+                        <!-- Mudar Status Rápido -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Alterar Status Manualmente</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <button 
+                                    @click="updateTicketStatus(detailModal.ticket.id, 'open')"
+                                    class="py-1.5 px-2.5 rounded-lg text-xs font-semibold border transition"
+                                    :class="detailModal.ticket?.status === 'open' ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'"
+                                >
+                                    Aberto
+                                </button>
+                                <button 
+                                    @click="updateTicketStatus(detailModal.ticket.id, 'in_progress')"
+                                    class="py-1.5 px-2.5 rounded-lg text-xs font-semibold border transition"
+                                    :class="detailModal.ticket?.status === 'in_progress' ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'"
+                                >
+                                    Em Progresso
+                                </button>
+                                <button 
+                                    @click="updateTicketStatus(detailModal.ticket.id, 'concluded')"
+                                    class="py-1.5 px-2.5 rounded-lg text-xs font-semibold border transition"
+                                    :class="detailModal.ticket?.status === 'concluded' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'"
+                                >
+                                    Concluído
+                                </button>
+                                <button 
+                                    @click="updateTicketStatus(detailModal.ticket.id, 'cancelled')"
+                                    class="py-1.5 px-2.5 rounded-lg text-xs font-semibold border transition"
+                                    :class="detailModal.ticket?.status === 'cancelled' ? 'bg-rose-500/20 text-rose-300 border-rose-500/50' : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'"
+                                >
+                                    Cancelado
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1412,6 +1702,15 @@
                     ticket: null
                 },
 
+                chat: {
+                    ticket: null,
+                    interactions: [],
+                    messageText: '',
+                    loading: false,
+                    sending: false,
+                    pollInterval: null
+                },
+
                 sectorModal: {
                     open: false,
                     name: '',
@@ -1672,6 +1971,157 @@
                         this.detailModal.open = true;
                     }
                     this.$nextTick(() => lucide.createIcons());
+                },
+
+                async startTicketProgress(ticket) {
+                    try {
+                        if (ticket.status !== 'in_progress') {
+                            await this.api(`/api/tickets/${ticket.id}`, {
+                                method: 'PUT',
+                                body: JSON.stringify({ status: 'in_progress' })
+                            });
+                            this.showToast('Chamado colocado em andamento!', 'success');
+                            ticket.status = 'in_progress';
+                        }
+                        this.detailModal.open = false;
+                        await this.loadTickets();
+                        await this.openTicketChat(ticket);
+                    } catch (err) {
+                        this.showToast(err.message, 'error');
+                    }
+                },
+
+                async openTicketChat(ticket) {
+                    this.activeTab = 'ticket_chat';
+                    this.chat.loading = true;
+                    this.chat.messageText = '';
+                    try {
+                        const res = await this.api(`/api/tickets/${ticket.id}`);
+                        this.chat.ticket = res.data || ticket;
+                    } catch (e) {
+                        this.chat.ticket = ticket;
+                    }
+
+                    await this.loadChatInteractions(this.chat.ticket.id);
+                    this.chat.loading = false;
+                    this.startChatPolling();
+                    this.$nextTick(() => {
+                        lucide.createIcons();
+                        this.scrollChatToBottom();
+                    });
+                },
+
+                async loadChatInteractions(ticketId) {
+                    try {
+                        const res = await this.api(`/api/tickets/${ticketId}/interactions`);
+                        this.chat.interactions = res.data || [];
+                    } catch (e) {}
+                },
+
+                startChatPolling() {
+                    this.stopChatPolling();
+                    this.chat.pollInterval = setInterval(async () => {
+                        if (this.activeTab === 'ticket_chat' && this.chat.ticket) {
+                            await this.loadChatInteractions(this.chat.ticket.id);
+                            this.$nextTick(() => lucide.createIcons());
+                        } else {
+                            this.stopChatPolling();
+                        }
+                    }, 5000);
+                },
+
+                stopChatPolling() {
+                    if (this.chat.pollInterval) {
+                        clearInterval(this.chat.pollInterval);
+                        this.chat.pollInterval = null;
+                    }
+                },
+
+                closeTicketChat() {
+                    this.stopChatPolling();
+                    this.activeTab = 'tickets';
+                    this.loadTickets();
+                    this.$nextTick(() => lucide.createIcons());
+                },
+
+                scrollChatToBottom() {
+                    setTimeout(() => {
+                        const el = document.getElementById('chatFeed');
+                        if (el) {
+                            el.scrollTop = el.scrollHeight;
+                        }
+                    }, 50);
+                },
+
+                async sendChatMessage(statusToApply = null) {
+                    if (!this.chat.messageText.trim() || !this.chat.ticket) return;
+                    this.chat.sending = true;
+                    try {
+                        const payload = {
+                            content: this.chat.messageText.trim()
+                        };
+                        if (statusToApply) {
+                            payload.status = statusToApply;
+                        }
+
+                        const res = await this.api(`/api/tickets/${this.chat.ticket.id}/interactions`, {
+                            method: 'POST',
+                            body: JSON.stringify(payload)
+                        });
+
+                        this.chat.interactions.push(res.data);
+                        this.chat.messageText = '';
+
+                        if (statusToApply) {
+                            this.chat.ticket.status = statusToApply;
+                            this.showToast(`Status atualizado para ${this.formatStatus(statusToApply)}!`, 'success');
+                        } else {
+                            this.showToast('Mensagem enviada com sucesso!', 'success');
+                        }
+
+                        this.loadTickets();
+                        this.$nextTick(() => {
+                            lucide.createIcons();
+                            this.scrollChatToBottom();
+                        });
+                    } catch (err) {
+                        this.showToast(err.message, 'error');
+                    } finally {
+                        this.chat.sending = false;
+                    }
+                },
+
+                async updateTicketStatusFromChat(newStatus) {
+                    if (!this.chat.ticket) return;
+                    try {
+                        await this.api(`/api/tickets/${this.chat.ticket.id}`, {
+                            method: 'PUT',
+                            body: JSON.stringify({ status: newStatus })
+                        });
+                        this.chat.ticket.status = newStatus;
+                        this.showToast(`Status alterado para ${this.formatStatus(newStatus)}`, 'success');
+                        await this.loadTickets();
+                        this.$nextTick(() => lucide.createIcons());
+                    } catch (err) {
+                        this.showToast(err.message, 'error');
+                    }
+                },
+
+                async assignTicketToMe() {
+                    if (!this.chat.ticket || !this.user) return;
+                    try {
+                        await this.api(`/api/tickets/${this.chat.ticket.id}`, {
+                            method: 'PUT',
+                            body: JSON.stringify({ attendant_id: this.user.id })
+                        });
+                        this.chat.ticket.attendant = this.user;
+                        this.chat.ticket.attendant_id = this.user.id;
+                        this.showToast('Você assumiu este chamado!', 'success');
+                        await this.loadTickets();
+                        this.$nextTick(() => lucide.createIcons());
+                    } catch (err) {
+                        this.showToast(err.message, 'error');
+                    }
                 },
 
                 async updateTicketStatus(ticketId, newStatus) {

@@ -60,11 +60,11 @@ class TicketPolicy
             return false;
         }
 
-        if ($ticket->requester_id === $user->id) {
+        if ($user->isAdmin() || $ticket->requester_id === $user->id) {
             return true;
         }
 
-        return $ticket->requester_id === $user->id || $user->isAdmin();
+        return $user->sectors()->where('sectors.id', $ticket->sector_id)->exists();
     }
 
     /**
