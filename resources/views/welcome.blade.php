@@ -338,7 +338,8 @@
     <!-- TELA 2: DASHBOARD & SISTEMA PRINCIPAL (LOGADO) -->
     <!-- ======================================================== -->
     <template x-if="token">
-        <div class="h-full flex flex-col lg:flex-row overflow-hidden bg-slate-950">
+        <div class="h-full w-full flex flex-col relative overflow-hidden">
+            <div class="h-full flex flex-col lg:flex-row overflow-hidden bg-slate-950">
 
             <!-- SIDEBAR -->
             <aside class="w-full lg:w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0">
@@ -454,13 +455,24 @@
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <button 
-                            @click="openNewTicketModal()"
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 transition"
-                        >
-                            <i data-lucide="plus" class="w-4 h-4"></i>
-                            Novo Chamado
-                        </button>
+                        <template x-if="activeTab === 'sectors'">
+                            <button 
+                                @click="openNewSectorModal()"
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 transition"
+                            >
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                Novo Setor
+                            </button>
+                        </template>
+                        <template x-if="activeTab !== 'sectors'">
+                            <button 
+                                @click="openNewTicketModal()"
+                                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 transition"
+                            >
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                Novo Chamado
+                            </button>
+                        </template>
                         <button 
                             @click="refreshCurrentTab()"
                             :disabled="loading"
@@ -689,7 +701,7 @@
                                 <p class="text-xs text-slate-400">Setores para direcionamento e triagem de chamados</p>
                             </div>
                             <button 
-                                @click="sectorModal.open = true" 
+                                @click="openNewSectorModal()" 
                                 class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg transition"
                             >
                                 <i data-lucide="plus" class="w-4 h-4"></i> Novo Setor
@@ -736,7 +748,7 @@
                                 <p class="text-xs text-slate-400">Tiers de limites de usuários, tickets e armazenamento em nuvem</p>
                             </div>
                             <button 
-                                @click="planModal.open = true" 
+                                @click="openNewPlanModal()" 
                                 class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg transition"
                             >
                                 <i data-lucide="plus" class="w-4 h-4"></i> Novo Plano
@@ -1093,6 +1105,7 @@
             </div>
         </div>
 
+        </div>
     </template>
 
     <!-- ======================================================== -->
@@ -1432,16 +1445,36 @@
                     this.$nextTick(() => lucide.createIcons());
                 },
 
+                openNewSectorModal() {
+                    if (this.user?.role === 'requester') {
+                        this.showToast('Solicitantes não têm permissão para criar setores. Acesse como Admin ou Super Admin.', 'error');
+                        return;
+                    }
+                    this.sectorModal.name = '';
+                    this.sectorModal.accepts_tickets = true;
+                    this.sectorModal.open = true;
+                    this.$nextTick(() => lucide.createIcons());
+                },
+
+                openNewPlanModal() {
+                    if (this.user?.role !== 'super_admin') {
+                        this.showToast('Apenas Super Administradores podem cadastrar novos planos SaaS.', 'error');
+                        return;
+                    }
+                    this.planModal.open = true;
+                    this.$nextTick(() => lucide.createIcons());
+                },
+
                 async submitCreateSector() {
                     try {
                         const payload = {
                             name: this.sectorModal.name,
-                            accepts_tickets: this.sectorModal.accepts_tickets,
+                            accepts_tickets: Boolean(this.sectorModal.accepts_tickets),
                             active: true
                         };
 
                         if (this.user?.role === 'super_admin') {
-                            payload.enterprise_id = 1;
+                            payload.enterprise_id = this.user.enterprise_id || (this.sectors[0]?.enterprise_id || 1);
                         }
 
                         await this.api('/api/sectors', {
