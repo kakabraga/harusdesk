@@ -405,19 +405,16 @@
                             <i data-lucide="ticket" class="w-4 h-4"></i>
                             Chamados
                         </div>
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-slate-950/60 text-slate-300" x-text="tickets.length"></span>
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-slate-950/60 text-slate-300" x-text="tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length"></span>
                     </button>
 
                     <button 
                         @click="activeTab = 'sectors'; loadSectors()"
                         :class="activeTab === 'sectors' ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
-                        class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition"
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition"
                     >
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="building-2" class="w-4 h-4"></i>
-                            Setores
-                        </div>
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-slate-950/60 text-slate-300" x-text="sectors.length"></span>
+                        <i data-lucide="building-2" class="w-4 h-4"></i>
+                        Setores
                     </button>
 
                     <button 
@@ -433,6 +430,7 @@
                     </button>
 
                     <button 
+                        x-show="user?.role === 'admin' || user?.role === 'super_admin'"
                         @click="activeTab = 'plans'; loadPlans()"
                         :class="activeTab === 'plans' ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
                         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition"
@@ -1006,7 +1004,7 @@
                     <!-- ========================================== -->
                     <!-- TAB 4: PLANOS (PLANS SAAS) -->
                     <!-- ========================================== -->
-                    <div x-show="activeTab === 'plans'" class="space-y-4">
+                    <div x-show="activeTab === 'plans' && (user?.role === 'admin' || user?.role === 'super_admin')" class="space-y-4">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="font-bold text-white text-base">Planos Disponíveis no HarusDesk</h3>
