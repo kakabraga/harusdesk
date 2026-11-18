@@ -160,12 +160,22 @@
                                         <i data-lucide="lock" class="w-4 h-4"></i>
                                     </div>
                                     <input 
-                                        type="password" 
+                                        :type="showPassword.login ? 'text' : 'password'" 
                                         x-model="loginForm.password" 
                                         required 
                                         placeholder="••••••••"
-                                        class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl py-2.5 pl-10 pr-3 text-sm text-white placeholder-slate-600 transition outline-none"
+                                        class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl py-2.5 pl-10 pr-10 text-sm text-white placeholder-slate-600 transition outline-none"
                                     >
+                                    <button 
+                                        type="button" 
+                                        @click="showPassword.login = !showPassword.login" 
+                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition"
+                                        tabindex="-1"
+                                        :title="showPassword.login ? 'Ocultar senha' : 'Exibir senha'"
+                                    >
+                                        <i x-show="!showPassword.login" data-lucide="eye" class="w-4 h-4"></i>
+                                        <i x-show="showPassword.login" data-lucide="eye-off" class="w-4 h-4" style="display: none;"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -294,25 +304,49 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="block text-xs font-medium text-slate-300 mb-1">Senha (min. 8)</label>
-                                    <input 
-                                        type="password" 
-                                        x-model="registerForm.password" 
-                                        required 
-                                        minlength="8"
-                                        placeholder="••••••••"
-                                        class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl py-2 px-3 text-sm text-white placeholder-slate-600 outline-none"
-                                    >
+                                    <div class="relative">
+                                        <input 
+                                            :type="showPassword.register ? 'text' : 'password'" 
+                                            x-model="registerForm.password" 
+                                            required 
+                                            minlength="8"
+                                            placeholder="••••••••"
+                                            class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl py-2 pl-3 pr-9 text-sm text-white placeholder-slate-600 outline-none"
+                                        >
+                                        <button 
+                                            type="button" 
+                                            @click="showPassword.register = !showPassword.register" 
+                                            class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300 transition"
+                                            tabindex="-1"
+                                            :title="showPassword.register ? 'Ocultar senha' : 'Exibir senha'"
+                                        >
+                                            <i x-show="!showPassword.register" data-lucide="eye" class="w-4 h-4"></i>
+                                            <i x-show="showPassword.register" data-lucide="eye-off" class="w-4 h-4" style="display: none;"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-slate-300 mb-1">Confirmar Senha</label>
-                                    <input 
-                                        type="password" 
-                                        x-model="registerForm.password_confirmation" 
-                                        required 
-                                        minlength="8"
-                                        placeholder="••••••••"
-                                        class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl py-2 px-3 text-sm text-white placeholder-slate-600 outline-none"
-                                    >
+                                    <div class="relative">
+                                        <input 
+                                            :type="showPassword.registerConfirm ? 'text' : 'password'" 
+                                            x-model="registerForm.password_confirmation" 
+                                            required 
+                                            minlength="8"
+                                            placeholder="••••••••"
+                                            class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl py-2 pl-3 pr-9 text-sm text-white placeholder-slate-600 outline-none"
+                                        >
+                                        <button 
+                                            type="button" 
+                                            @click="showPassword.registerConfirm = !showPassword.registerConfirm" 
+                                            class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300 transition"
+                                            tabindex="-1"
+                                            :title="showPassword.registerConfirm ? 'Ocultar senha' : 'Exibir senha'"
+                                        >
+                                            <i x-show="!showPassword.registerConfirm" data-lucide="eye" class="w-4 h-4"></i>
+                                            <i x-show="showPassword.registerConfirm" data-lucide="eye-off" class="w-4 h-4" style="display: none;"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1566,11 +1600,23 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-medium text-slate-300 mb-1">Senha (mín. 8 caracteres)</label>
-                            <input type="password" minlength="8" x-model="userModal.password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-white focus:border-brand-500 outline-none">
+                            <div class="relative">
+                                <input :type="showPassword.userCreate ? 'text' : 'password'" minlength="8" x-model="userModal.password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 pl-3 pr-9 text-sm text-white focus:border-brand-500 outline-none">
+                                <button type="button" @click="showPassword.userCreate = !showPassword.userCreate" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300 transition" tabindex="-1" :title="showPassword.userCreate ? 'Ocultar senha' : 'Exibir senha'">
+                                    <i x-show="!showPassword.userCreate" data-lucide="eye" class="w-4 h-4"></i>
+                                    <i x-show="showPassword.userCreate" data-lucide="eye-off" class="w-4 h-4" style="display: none;"></i>
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-slate-300 mb-1">Confirmar Senha</label>
-                            <input type="password" minlength="8" x-model="userModal.password_confirmation" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-white focus:border-brand-500 outline-none">
+                            <div class="relative">
+                                <input :type="showPassword.userCreateConfirm ? 'text' : 'password'" minlength="8" x-model="userModal.password_confirmation" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 pl-3 pr-9 text-sm text-white focus:border-brand-500 outline-none">
+                                <button type="button" @click="showPassword.userCreateConfirm = !showPassword.userCreateConfirm" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300 transition" tabindex="-1" :title="showPassword.userCreateConfirm ? 'Ocultar senha' : 'Exibir senha'">
+                                    <i x-show="!showPassword.userCreateConfirm" data-lucide="eye" class="w-4 h-4"></i>
+                                    <i x-show="showPassword.userCreateConfirm" data-lucide="eye-off" class="w-4 h-4" style="display: none;"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -1660,6 +1706,14 @@
                 users: [],
                 plans: [],
                 toasts: [],
+
+                showPassword: {
+                    login: false,
+                    register: false,
+                    registerConfirm: false,
+                    userCreate: false,
+                    userCreateConfirm: false
+                },
 
                 filters: {
                     status: '',
@@ -2262,6 +2316,8 @@
                     this.userModal.password = '';
                     this.userModal.password_confirmation = '';
                     this.userModal.sector_ids = [];
+                    this.showPassword.userCreate = false;
+                    this.showPassword.userCreateConfirm = false;
                     this.userModal.open = true;
                     this.$nextTick(() => lucide.createIcons());
                 },
